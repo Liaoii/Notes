@@ -6,3 +6,5 @@
 
 ## [3. MySQL逻辑架构](03-MySQL逻辑架构.md)
 
+## [4. InnoDB存储引擎](04-InnoDB存储引擎.md)
+
