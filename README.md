@@ -1,12 +1,7 @@
-# 笔记
+# 目录
 
-## 1. 工具使用
-
-### [1.1 Typora](Tools/Typora/00-index.md)
-
-### [1.2 Git](Tools/Git/00-index.md)
-
-## 2. 数据库
-
-### [2.1 MySQL](Databases/MySQL/00-index.md)
+| 算法                                       | 数据库                               | 工具使用                           |
+| ------------------------------------------ | ------------------------------------ | ---------------------------------- |
+| [LeetCode](Algorithm/LeetCode/00-index.md) | [MySQL](Databases/MySQL/00-index.md) | [Typora](Tools/Typora/00-index.md) |
+|                                            |                                      | [Git](Tools/Git/00-index.md)       |
 
