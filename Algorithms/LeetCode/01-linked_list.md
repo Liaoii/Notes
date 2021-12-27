@@ -134,6 +134,40 @@ class Solution {
 }
 ```
 
+## [24. 两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
+
+```java
+class Solution {
+    public ListNode reverseN(ListNode head, int n) {
+        if (n == 1) return head;
+        ListNode tail = head.next;
+        ListNode p = reverseN(head.next, n - 1);
+        head.next = tail.next;
+        tail.next = head;
+        return p;
+    }
+
+    public ListNode reverse(ListNode head, int n) {
+        ListNode p = head;
+        int count = n;
+        while (--n > 0 && p != null) p = p.next;
+        if (p == null) return head;
+        return reverseN(head, count);
+    }
+
+    public ListNode swapPairs(ListNode head) {
+        ListNode pre = new ListNode();
+        pre.next = head;
+        ListNode p = pre, q = pre.next;
+        while ((p.next = reverse(q, 2)) != q) {
+            p = q;
+            q = p.next;
+        }
+        return pre.next;
+    }
+}
+```
+
 ## [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)
 
 ```java
@@ -229,6 +263,30 @@ class Solution {
 }
 ```
 
+## [86. 分隔链表](https://leetcode-cn.com/problems/partition-list/)
+
+```java
+class Solution {
+    public ListNode partition(ListNode head, int x) {
+        if (head == null || head.next == null) return head;
+        ListNode pre = new ListNode(0, head), p = pre;
+        ListNode right = new ListNode(), r = right;
+        while (p.next != null) {
+            if (p.next.val >= x) {
+                right.next = p.next;
+                p.next = p.next.next;
+                right = right.next;
+                right.next = null;
+            } else {
+                p = p.next;
+            }
+        }
+        p.next = r.next;
+        return pre.next;
+    }
+}
+```
+
 ## [92. 反转链表 II](https://leetcode-cn.com/problems/reverse-linked-list-ii/)
 
 ```java
@@ -252,6 +310,39 @@ class Solution {
         }
         ListNode p = reverseN(start.next, count);
         start.next = p;
+        return pre.next;
+    }
+}
+```
+
+## [138. 复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)
+
+```java
+class Solution {
+    public Node copyRandomList(Node head) {
+        if (head == null) return null;
+        Node pre = new Node(0), h = new Node(0), r = pre;
+        h.next = head;
+        int index = -1;
+        HashMap<Node, Integer> nodeMap = new HashMap<>();
+        HashMap<Integer, Node> map = new HashMap<>();
+        while (h.next != null) {
+            h = h.next;
+            index++;
+            Node temp = new Node(h.val);
+            map.put(index, temp);
+            nodeMap.put(h, index);
+            r.next = temp;
+            r = temp;
+        }
+        r = pre.next;
+        while (head != null) {
+            if (head.random != null) {
+                r.random = map.get(nodeMap.get(head.random));
+            }
+            head = head.next;
+            r = r.next;
+        }
         return pre.next;
     }
 }
@@ -349,6 +440,104 @@ public class Solution {
 }
 ```
 
+## [147. 对链表进行插入排序](https://leetcode-cn.com/problems/insertion-sort-list/)
+
+```java
+class Solution {
+    public ListNode insertionSortList(ListNode head) {
+        if (head == null) return null;
+        ListNode pre = new ListNode(0, head), temp;
+        while (head.next != null) {
+            if (head.next.val < head.val) {
+                temp = head.next;
+                head.next = head.next.next;
+                ListNode p = pre;
+                while (p.next != null) {
+                    if (temp.val < p.next.val) {
+                        temp.next = p.next;
+                        p.next = temp;
+                        break;
+                    } else {
+                        p = p.next;
+                    }
+                }
+            } else {
+                head = head.next;
+            }
+        }
+        return pre.next;
+    }
+}
+```
+
+## [160. 相交链表](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/)
+
+第一次解法：
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        HashMap<ListNode, Object> map = new HashMap<>();
+        while (headA != null) {
+            if (map.containsKey(headA)) {
+                return headA;
+            } else {
+                map.put(headA, null);
+                headA = headA.next;
+            }
+        }
+        while (headB != null) {
+            if (map.containsKey(headB)) {
+                return headB;
+            } else {
+                map.put(headB, null);
+                headB = headB.next;
+            }
+        }
+        return null;
+    }
+}
+```
+
+优化第一次的解法：
+
+```java
+class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        HashSet<ListNode> set = new HashSet<>();
+        ListNode temp = headA;
+        while (temp != null) {
+            set.add(temp);
+            temp = temp.next;
+        }
+        temp = headB;
+        while (temp != null) {
+            if (set.contains(temp)) {
+                return temp;
+            }
+            temp = temp.next;
+        }
+        return null;
+    }
+}
+```
+
+双指针解法：
+
+```java
+class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode tempA = headA;
+        ListNode tempB = headB;
+        while (tempA != tempB) {
+            tempA = tempA == null ? headB : tempA.next;
+            tempB = tempB == null ? headA : tempB.next;
+        }
+        return tempA;
+    }
+}
+```
+
 ## [202. 快乐数](https://leetcode-cn.com/problems/happy-number/)
 
 ```java
@@ -369,6 +558,24 @@ class Solution {
             fast = getNext(getNext(fast));
         } while (slow != fast && fast != 1);
         return fast == 1;
+    }
+}
+```
+
+## [203. 移除链表元素](https://leetcode-cn.com/problems/remove-linked-list-elements/)
+
+```java
+class Solution {
+    public ListNode removeElements(ListNode head, int val) {
+        ListNode pre = new ListNode(0, head), p = pre;
+        while (pre.next != null) {
+            if (pre.next.val == val) {
+                pre.next = pre.next.next;
+            } else {
+                pre = pre.next;
+            }
+        }
+        return p.next;
     }
 }
 ```
@@ -404,6 +611,38 @@ class Solution {
         head.next = null;
         tail.next = head;
         return p;
+    }
+}
+```
+
+## [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+
+```java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        if (head.next == null) return true;
+        int index = 0;
+        HashMap<Integer, ListNode> map = new HashMap<>();
+        while (head != null) {
+            map.put(++index, head);
+            head = head.next;
+        }
+        for (int i = 1; i <= index / 2; i++) {
+            int j = index - i + 1;
+            if (map.get(i).val != map.get(j).val) return false;
+        }
+        return true;
+    }
+}
+```
+
+## [237. 删除链表中的节点](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/)
+
+```java
+class Solution {
+    public void deleteNode(ListNode node) {
+        node.val = node.next.val;
+        node.next = node.next.next;
     }
 }
 ```
