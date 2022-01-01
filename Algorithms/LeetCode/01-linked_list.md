@@ -287,6 +287,31 @@ class Solution {
 }
 ```
 
+新建两个新链表：
+
+```java
+class Solution {
+    public ListNode partition(ListNode head, int x) {
+        ListNode r1 = new ListNode(), p1 = r1, r2 = new ListNode(), p2 = r2, p = head, q;
+        while (p != null) {
+            q = p.next;
+            if (p.val < x) {
+                p.next = p1.next;
+                p1.next = p;
+                p1 = p;
+            } else {
+                p.next = p2.next;
+                p2.next = p;
+                p2 = p;
+            }
+            p = q;
+        }
+        p1.next = r2.next;
+        return r1.next;
+    }
+}
+```
+
 ## [92. 反转链表 II](https://leetcode-cn.com/problems/reverse-linked-list-ii/)
 
 ```java
@@ -317,6 +342,8 @@ class Solution {
 
 ## [138. 复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)
 
+使用额外哈希表：
+
 ```java
 class Solution {
     public Node copyRandomList(Node head) {
@@ -344,6 +371,37 @@ class Solution {
             r = r.next;
         }
         return pre.next;
+    }
+}
+```
+
+拷贝每个节点：
+
+```java
+class Solution {
+    public Node copyRandomList(Node head) {
+        if (head == null) return null;
+        Node h = head;
+        while (h != null) {
+            Node copy = new Node(h.val);
+            copy.next = h.next;
+            h.next = copy;
+            h = copy.next;
+        }
+        Node r = head;
+        while (r != null && r.next != null) {
+            if (r.random != null)
+                r.next.random = r.random.next;
+            r = r.next.next;
+        }
+        Node q = head.next, p = head;
+        while (p != null) {
+            Node temp = p.next;
+            p.next = p.next.next;
+            temp.next = (temp.next != null) ? temp.next.next : null;
+            p = p.next;
+        }
+        return q;
     }
 }
 ```
@@ -439,6 +497,10 @@ public class Solution {
     }
 }
 ```
+
+## [143. 重排链表](https://leetcode-cn.com/problems/reorder-list/)
+
+
 
 ## [147. 对链表进行插入排序](https://leetcode-cn.com/problems/insertion-sort-list/)
 
@@ -643,6 +705,188 @@ class Solution {
     public void deleteNode(ListNode node) {
         node.val = node.next.val;
         node.next = node.next.next;
+    }
+}
+```
+
+## [328. 奇偶链表](https://leetcode-cn.com/problems/odd-even-linked-list/)
+
+第一次代码：
+
+```java
+class Solution {
+    public static ListNode oddEvenList(ListNode head) {
+        if (head == null) return null;
+        ListNode pre = new ListNode(0, head), p = pre;
+        ListNode h = new ListNode(), tail = h;
+        while (pre != null && pre.next != null) {
+            h.next = pre.next;
+            h = h.next;
+            pre.next = pre.next.next;
+            pre = pre.next;
+        }
+        h.next = p.next;
+        return tail.next;
+    }
+}
+```
+
+优化后的解法：
+
+```java
+class Solution {
+    public static ListNode oddEvenList(ListNode head) {
+        if (head == null) return null;
+        ListNode p = head, q = head.next, qHead = q;
+        while (q != null && q.next != null) {
+            p.next = q.next;
+            p = p.next;
+            q.next = p.next;
+            q = q.next;
+        }
+        p.next = qHead;
+        return head;
+    }
+}
+```
+
+## [382. 链表随机节点](https://leetcode-cn.com/problems/linked-list-random-node/)
+
+```java
+class Solution {
+
+    ListNode head;
+    Random random;
+
+    public Solution(ListNode head) {
+        this.head = head;
+        random = new Random();
+    }
+
+    public int getRandom() {
+        int result = 0;
+        ListNode p = head;
+        int count = 0;
+        while (p != null) {
+            count++;
+            int r = random.nextInt(count) + 1;
+            if (r == count) {
+                result = p.val;
+            }
+            p = p.next;
+        }
+        return result;
+    }
+}
+```
+
+## [876. 链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
+
+```java
+class Solution {
+    public ListNode middleNode(ListNode head) {
+        ListNode p = head;
+        int length = 0;
+        while (head != null) {
+            length++;
+            head = head.next;
+        }
+        int mid = length / 2 + 1;
+        while (--mid > 0) p = p.next;
+        return p;
+    }
+}
+```
+
+## [1290. 二进制链表转整数](https://leetcode-cn.com/problems/convert-binary-number-in-a-linked-list-to-integer/)
+
+常规解法：
+
+```java
+class Solution {
+    public int getDecimalValue(ListNode head) {
+        String binaryStr = "";
+        while (head != null) {
+            binaryStr += head.val;
+            head = head.next;
+        }
+        return Integer.valueOf(binaryStr, 2);
+    }
+}
+```
+
+数学运算解法：
+
+```java
+class Solution {
+    public int getDecimalValue(ListNode head) {
+        ListNode pre = head;
+        int length = 0;
+        int result = 0;
+        while (head != null) {
+            length++;
+            head = head.next;
+        }
+        while (pre != null) {
+            length--;
+            if (pre.val == 1) {
+                result += Math.pow(2, length);
+            }
+            pre = pre.next;
+        }
+        return result;
+    }
+}
+```
+
+## [1669. 合并两个链表](https://leetcode-cn.com/problems/merge-in-between-linked-lists/)
+
+```java
+class Solution {
+    public ListNode mergeInBetween(ListNode list1, int a, int b, ListNode list2) {
+        ListNode temp1 = list2;
+        while (temp1.next != null) {
+            temp1 = temp1.next;
+        }
+        ListNode temp2 = list1;
+        while (b-- > 0) {
+            temp2 = temp2.next;
+        }
+        temp1.next = temp2.next;
+        ListNode temp3 = list1;
+        while (--a > 0) {
+            temp3 = temp3.next;
+        }
+        temp3.next = list2;
+        return list1;
+    }
+}
+```
+
+## [1721. 交换链表中的节点](https://leetcode-cn.com/problems/swapping-nodes-in-a-linked-list/)
+
+```java
+class Solution {
+    public ListNode swapNodes(ListNode head, int k) {
+        ListNode h = head;
+        int length = 0;
+        while (h != null) {
+            length++;
+            h = h.next;
+        }
+        int j = length - k + 1;
+        if (k == j) return head;
+        ListNode p = head, q = head;
+        while (--k > 0) {
+            p = p.next;
+        }
+        while (--j > 0) {
+            q = q.next;
+        }
+        int temp = p.val;
+        p.val = q.val;
+        q.val = temp;
+        return head;
     }
 }
 ```
