@@ -21,6 +21,48 @@ class Solution {
 }
 ```
 
+使用数组代替哈希表：
+
+```java
+class Solution {
+    public int firstUniqChar(String s) {
+        int[] count = new int[26];
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            count[c - 'a']++;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (count[c - 'a'] == 1) return i;
+        }
+        return -1;
+    }
+}
+```
+
+## [621. 任务调度器](https://leetcode-cn.com/problems/task-scheduler/)
+
+```java
+class Solution {
+    public int leastInterval(char[] tasks, int n) {
+        int[] count = new int[26];
+        for (int i = 0; i < tasks.length; i++) {
+            count[tasks[i] - 'A']++;
+        }
+        Arrays.sort(count);
+        int m = 0;
+        for (int i = 25; i >= 0; i--) {
+            if (count[i] == count[25]) {
+                m++;
+            } else {
+                break;
+            }
+        }
+        return Math.max(tasks.length, (count[25] - 1) * (n + 1) + m);
+    }
+}
+```
+
 ## [622. 设计循环队列](https://leetcode-cn.com/problems/design-circular-queue/)
 
 ```java
@@ -214,6 +256,76 @@ class RecentCounter {
             queue.poll();
         }
         return queue.size();
+    }
+}
+```
+
+## [969. 煎饼排序](https://leetcode-cn.com/problems/pancake-sorting/)
+
+```java
+class Solution {
+    public List<Integer> pancakeSort(int[] arr) {
+        int[] index = new int[arr.length + 1];
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            index[arr[i]] = i;
+        }
+        for (int i = arr.length; i >= 1; i--) {
+            if (index[i] == i - 1) continue;
+            if (index[i] != 0) {
+                result.add(index[i] + 1);
+                reverse(arr, index[i] + 1, index);
+            }
+            if (i != 1) {
+                result.add(i);
+                reverse(arr, i, index);
+            }
+        }
+        return result;
+    }
+
+    private void reverse(int[] arr, int n, int[] index) {
+        for (int i = 0, j = n - 1; i < j; i++, j--) {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+            index[arr[i]] = i;
+            index[arr[j]] = j;
+        }
+    }
+}
+```
+
+```java
+class Solution {
+    public List<Integer> pancakeSort(int[] arr) {
+        int[] index = new int[arr.length];
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            index[arr[i] - 1] = i;
+        }
+        for (int i = arr.length - 1; i >= 0; i--) {
+            if (index[i] == i) continue;
+            if (index[i] != 0) {
+                result.add(index[i] + 1);
+                reverse(arr, index[i] + 1, index);
+            }
+            if (i != 0) {
+                result.add(i + 1);
+                reverse(arr, i + 1, index);
+            }
+        }
+        return result;
+    }
+
+    private void reverse(int[] arr, int n, int[] index) {
+        for (int i = 0, j = n - 1; i < j; i++, j--) {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+            index[arr[i] - 1] = i;
+            index[arr[j] - 1] = j;
+        }
     }
 }
 ```
