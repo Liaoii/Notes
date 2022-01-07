@@ -1,5 +1,59 @@
 # 队列（Queue）
 
+## [239. 滑动窗口最大值](https://leetcode-cn.com/problems/sliding-window-maximum/)
+
+超时：
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int[] result = new int[nums.length - k + 1];
+        for (int head = 0, tail = k - 1; tail < nums.length; head++, tail++) {
+            int max = getMax(nums, head, tail);
+            result[head] = max;
+        }
+        return result;
+    }
+
+    private int getMax(int[] nums, int head, int tail) {
+        int max = nums[head];
+        for (int i = head; i <= tail; i++) {
+            if (nums[i] > max) max = nums[i];
+        }
+        return max;
+    }
+}
+```
+
+超时优化：
+
+```java
+
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int[] result = new int[nums.length - k + 1];
+        int max = getMax(nums, 0, k - 1);
+        for (int head = 0, tail = k - 1; tail < nums.length; head++, tail++) {
+            if (nums[tail] >= max) {
+                max = nums[tail];
+            } else {
+                max = getMax(nums, head, tail);
+            }
+            result[head] = max;
+        }
+        return result;
+    }
+
+    private int getMax(int[] nums, int head, int tail) {
+        int max = nums[head];
+        for (int i = head; i <= tail; i++) {
+            if (nums[i] > max) max = nums[i];
+        }
+        return max;
+    }
+}
+```
+
 ## [387. 字符串中的第一个唯一字符](https://leetcode-cn.com/problems/first-unique-character-in-a-string/)
 
 ```java
@@ -36,6 +90,62 @@ class Solution {
             if (count[c - 'a'] == 1) return i;
         }
         return -1;
+    }
+}
+```
+
+遍历哈希表方式：
+
+```java
+class Solution {
+    public int firstUniqChar(String s) {
+        Map<Character, Integer> map = new HashMap<>();
+        int length = s.length();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (map.containsKey(c)) {
+                map.put(c, -1);
+            } else {
+                map.put(c, i);
+            }
+        }
+        int index = length;
+        for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+            if (entry.getValue() != -1 && entry.getValue() < index) {
+                index = entry.getValue();
+            }
+        }
+        return index == length ? -1 : index;
+    }
+}
+```
+
+使用队列的方式：
+
+```java
+class Solution {
+    public int firstUniqChar(String s) {
+        int[] count = new int[26];
+        Queue<Pair> queue = new LinkedList<>();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            count[c - 'a']++;
+            queue.offer(new Pair(c, i));
+        }
+        while (!queue.isEmpty() && count[queue.peek().c - 'a'] != 1) {
+            queue.poll();
+        }
+        return queue.isEmpty() ? -1 : queue.peek().index;
+    }
+
+    class Pair {
+        char c;
+        int index;
+
+        Pair(char c, int index) {
+            this.c = c;
+            this.index = index;
+        }
     }
 }
 ```
@@ -491,6 +601,46 @@ class FrontMiddleBackQueue {
             d2.push_front(d1.back());
             d1.pop_back();
         }
+    }
+}
+```
+
+## [1700. 无法吃午餐的学生数量](https://leetcode-cn.com/problems/number-of-students-unable-to-eat-lunch/)
+
+```java
+class Solution {
+    public int countStudents(int[] students, int[] sandwiches) {
+        int[] stuCount = new int[2];
+        for (int i = 0; i < students.length; i++) {
+            stuCount[students[i]]++;
+        }
+        for (int i = 0; i < sandwiches.length; i++) {
+            if (stuCount[sandwiches[i]] == 0) {
+                return stuCount[2 - sandwiches[i] - 1];
+            } else {
+                stuCount[sandwiches[i]]--;
+            }
+        }
+        return 0;
+    }
+}
+```
+
+## [2073. 买票需要的时间](https://leetcode-cn.com/problems/time-needed-to-buy-tickets/)
+
+```java
+class Solution {
+    public int timeRequiredToBuy(int[] tickets, int k) {
+        int target = tickets[k];
+        int count = 0;
+        for (int i = 0; i < tickets.length; i++) {
+            if (i <= k) {
+                count += tickets[i] <= target ? tickets[i] : target;
+            } else {
+                count += tickets[i] <= target - 1 ? tickets[i] : target - 1;
+            }
+        }
+        return count;
     }
 }
 ```
