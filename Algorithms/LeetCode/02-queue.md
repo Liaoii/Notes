@@ -1,5 +1,85 @@
 # 队列（Queue）
 
+## [232. 用栈实现队列](https://leetcode-cn.com/problems/implement-queue-using-stacks/)
+
+```java
+class MyQueue {
+
+    private Stack<Integer> stack1;
+    private Stack<Integer> stack2;
+
+    public MyQueue() {
+        stack1 = new Stack<>();
+        stack2 = new Stack<>();
+    }
+
+    public void push(int x) {
+        while (!stack1.isEmpty()) {
+            stack2.push(stack1.pop());
+        }
+        stack1.push(x);
+        while (!stack2.isEmpty()) {
+            stack1.push(stack2.pop());
+        }
+    }
+
+    public int pop() {
+        if (stack1.isEmpty()) return -1;
+        return stack1.pop();
+    }
+
+    public int peek() {
+        return stack1.peek();
+    }
+
+    public boolean empty() {
+        return stack1.isEmpty();
+    }
+}
+```
+
+效率优化：
+
+```java
+class MyQueue {
+
+    private Stack<Integer> stack1;
+    private Stack<Integer> stack2;
+
+    public MyQueue() {
+        stack1 = new Stack<>();
+        stack2 = new Stack<>();
+    }
+
+    public void push(int x) {
+        stack1.push(x);
+
+    }
+
+    public int pop() {
+        if (stack2.isEmpty()) {
+            while (!stack1.isEmpty()) {
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.pop();
+    }
+
+    public int peek() {
+        if (stack2.isEmpty()) {
+            while (!stack1.isEmpty()) {
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.peek();
+    }
+
+    public boolean empty() {
+        return stack1.isEmpty() && stack2.isEmpty();
+    }
+}
+```
+
 ## [239. 滑动窗口最大值](https://leetcode-cn.com/problems/sliding-window-maximum/)
 
 超时：
@@ -50,6 +130,40 @@ class Solution {
             if (nums[i] > max) max = nums[i];
         }
         return max;
+    }
+}
+```
+
+## [341. 扁平化嵌套列表迭代器](https://leetcode-cn.com/problems/flatten-nested-list-iterator/)
+
+```java
+public class NestedIterator implements Iterator<Integer> {
+
+    private List<Integer> list;
+
+    public NestedIterator(List<NestedInteger> nestedList) {
+        list = new ArrayList<>();
+        getList(nestedList, list);
+    }
+
+    private void getList(List<NestedInteger> nestedList, List<Integer> list) {
+        for (NestedInteger n : nestedList) {
+            if (n.isInteger()) {
+                list.add(n.getInteger());
+            } else {
+                getList(n.getList(), list);
+            }
+        }
+    }
+
+    @Override
+    public Integer next() {
+        return list.remove(0);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return list.size() > 0;
     }
 }
 ```
@@ -288,6 +402,29 @@ class MyCircularDeque {
 }
 ```
 
+## [649. Dota2 参议院](https://leetcode-cn.com/problems/dota2-senate/)
+
+```java
+class Solution {
+    public String predictPartyVictory(String senate) {
+        int length = senate.length();
+        Queue<Integer> radiant = new LinkedList<>();
+        Queue<Integer> dire = new LinkedList<>();
+        for (int i = 0; i < length; i++) {
+            if (senate.charAt(i) == 'R') radiant.offer(i);
+            else dire.offer(i);
+        }
+        while (!radiant.isEmpty() && !dire.isEmpty()) {
+            int r = radiant.poll();
+            int d = dire.poll();
+            if (r < d) radiant.offer(r + length);
+            else dire.offer(d + length);
+        }
+        return radiant.isEmpty() ? "Dire" : "Radiant";
+    }
+}
+```
+
 ## [859. 亲密字符串](https://leetcode-cn.com/problems/buddy-strings/)
 
 ```java
@@ -366,6 +503,27 @@ class RecentCounter {
             queue.poll();
         }
         return queue.size();
+    }
+}
+```
+
+## [950. 按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)
+
+```java
+class Solution {
+    public int[] deckRevealedIncreasing(int[] deck) {
+        int length = deck.length;
+        int[] result = new int[length];
+        Deque<Integer> index = new LinkedList<>();
+        for (int i = 0; i < length; i++) {
+            index.add(i);
+        }
+        Arrays.sort(deck);
+        for (int i = 0; i < deck.length; i++) {
+            result[index.pollFirst()] = deck[i];
+            if (!index.isEmpty()) index.add(index.pollFirst());
+        }
+        return result;
     }
 }
 ```
