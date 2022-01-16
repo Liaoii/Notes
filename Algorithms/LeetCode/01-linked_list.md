@@ -443,6 +443,20 @@ public class Solution {
 }
 ```
 
+```
+class Solution {
+    public boolean hasCycle(ListNode head) {
+        if (head == null) return false;
+        ListNode slow = head, fast = head;
+        do {
+            slow = slow.next;
+            fast = fast.next == null ? null : fast.next.next;
+        } while (fast != null && fast != slow);
+        return fast != null;
+    }
+}
+```
+
 ## [142. 环形链表 II](https://leetcode-cn.com/problems/linked-list-cycle-ii/)
 
 使用快慢指针解法：
@@ -488,6 +502,26 @@ public class Solution {
             fast = fast.next.next;
         } while (fast != null && fast.next != null && slow != fast);
         if (fast == null || fast.next == null) return null;
+        slow = head;
+        while (slow != fast) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return slow;
+    }
+}
+```
+
+```java
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        if (head == null) return null;
+        ListNode slow = head, fast = head;
+        do {
+            slow = slow.next;
+            fast = fast.next == null ? null : fast.next.next;
+        } while (fast != null && fast != slow);
+        if (fast == null) return null;
         slow = head;
         while (slow != fast) {
             slow = slow.next;

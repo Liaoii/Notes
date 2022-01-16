@@ -598,6 +598,32 @@ class Solution {
 }
 ```
 
+## [1438. 绝对差不超过限制的最长连续子数组](https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+
+```java
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        Deque<Integer> maxDeque = new LinkedList<>();
+        Deque<Integer> minDeque = new LinkedList<>();
+        int left = 0, right = 0, result = 0;
+        while (right < nums.length) {
+            while (!maxDeque.isEmpty() && maxDeque.peekLast() < nums[right]) maxDeque.pollLast();
+            while (!minDeque.isEmpty() && minDeque.peekLast() > nums[right]) minDeque.pollLast();
+            maxDeque.offerLast(nums[right]);
+            minDeque.offerLast(nums[right]);
+            while (!maxDeque.isEmpty() && !minDeque.isEmpty() && maxDeque.peekFirst() - minDeque.peekFirst() > limit) {
+                if (nums[left] == maxDeque.peekFirst()) maxDeque.pollFirst();
+                if (nums[left] == minDeque.peekFirst()) minDeque.pollFirst();
+                left++;
+            }
+            result = Math.max(result, right - left + 1);
+            right++;
+        }
+        return result;
+    }
+}
+```
+
 ## [1670. 设计前中后队列](https://leetcode-cn.com/problems/design-front-middle-back-queue/)
 
 ```java
@@ -780,6 +806,27 @@ class Solution {
             }
         }
         return 0;
+    }
+}
+```
+
+## [1823. 找出游戏的获胜者](https://leetcode-cn.com/problems/find-the-winner-of-the-circular-game/)
+
+```java
+class Solution {
+    public int findTheWinner(int n, int k) {
+        ArrayList<Integer> list = new ArrayList<>();
+        int index = 0;
+        for (int i = 1; i <= n; i++) {
+            list.add(i);
+        }
+        while (list.size() > 1) {
+            int offset = k % list.size();
+            index = (index + offset + list.size() - 1) % list.size();
+            list.remove(index);
+            index = index % list.size();
+        }
+        return list.get(0);
     }
 }
 ```
