@@ -61,6 +61,138 @@ class Solution {
 }
 ```
 
+## [94. 二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)
+
+使用递归实现：
+
+```java
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        if (root == null) return res;
+        getChild(root, res);
+        return res;
+    }
+    private void getChild(TreeNode root, List<Integer> res) {
+        if (root.left != null) getChild(root.left, res);
+        res.add(root.val);
+        if (root.right != null) getChild(root.right, res);
+    }
+}
+```
+
+使用双栈实现：
+
+```java
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        if (root == null) return res;
+        Stack<TreeNode> tStack = new Stack<>();
+        tStack.add(root);
+        Stack<Integer> iStack = new Stack<>();
+        iStack.add(0);
+        while (!iStack.isEmpty()) {
+            int step = iStack.pop();
+            switch (step) {
+                case 0: {
+                    iStack.push(1);
+                    if (tStack.peek().left != null) {
+                        tStack.push(tStack.peek().left);
+                        iStack.push(0);
+                    }
+                }
+                break;
+                case 1: {
+                    iStack.push(3);
+                    iStack.push(2);
+                    res.add(tStack.peek().val);
+                }
+                break;
+                case 2: {
+                    if (tStack.peek().right != null) {
+                        tStack.push(tStack.peek().right);
+                        iStack.push(0);
+                    }
+                }
+                break;
+                case 3: {
+                    tStack.pop();
+                }
+                break;
+            }
+        }
+        return res;
+    }
+}
+```
+
+## [144. 二叉树的前序遍历](https://leetcode-cn.com/problems/binary-tree-preorder-traversal/)
+
+使用递归：
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        if (root == null) return res;
+        getChild(root, res);
+        return res;
+    }
+    private void getChild(TreeNode root, List<Integer> res) {
+        res.add(root.val);
+        if (root.left != null) getChild(root.left, res);
+        if (root.right != null) getChild(root.right, res);
+    }
+}
+```
+
+使用双栈实现：
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        if (root == null) return res;
+        Stack<TreeNode> tStack = new Stack<>();
+        tStack.push(root);
+        Stack<Integer> iStack = new Stack<>();
+        iStack.push(0);
+        while (!iStack.isEmpty()) {
+            int step = iStack.pop();
+            switch (step) {
+                case 0: {
+                    res.add(tStack.peek().val);
+                    iStack.push(3);
+                    iStack.push(1);
+                }
+                break;
+                case 1: {
+                    iStack.push(2);
+                    if (tStack.peek().left != null) {
+                        tStack.push(tStack.peek().left);
+                        iStack.push(0);
+                    }
+                }
+                break;
+                case 2: {
+                    if (tStack.peek().right != null) {
+                        tStack.push(tStack.peek().right);
+                        iStack.push(0);
+                    }
+                }
+                break;
+                case 3: {
+                    tStack.pop();
+                }
+                break;
+            }
+        }
+        return res;
+    }
+}
+```
+
 ## [145. 二叉树的后序遍历](https://leetcode-cn.com/problems/binary-tree-postorder-traversal/)
 
 使用递归实现：
@@ -184,6 +316,148 @@ class MinStack {
 
     public int getMin() {
         return mStack.peek();
+    }
+}
+```
+
+## [225. 用队列实现栈](https://leetcode-cn.com/problems/implement-stack-using-queues/)
+
+这是什么狗屁实现：
+
+```java
+class MyStack {
+
+    private List<Integer> nodes;
+
+    public MyStack() {
+        nodes = new ArrayList<>();
+    }
+    
+    public void push(int x) {
+        nodes.add(x);
+    }
+    
+    public int pop() {
+        int result = -1;
+        if(nodes.size() > 0) {
+            result = nodes.get(nodes.size() -1);
+            nodes.remove(nodes.size() - 1);
+        }
+        return result;
+    }
+    
+    public int top() {
+        if(nodes.size() > 0) {
+            return nodes.get(nodes.size() - 1);
+        }
+        return -1;
+    }
+    
+    public boolean empty() {
+        return nodes.size() == 0;
+    }
+}
+```
+
+使用双栈实现：
+
+```java
+class MyStack {
+
+    Queue<Integer> q1, q2;
+
+    public MyStack() {
+        q1 = new LinkedList<>();
+        q2 = new LinkedList<>();
+    }
+
+    public void push(int x) {
+        if (q1.isEmpty()) {
+            q1.offer(x);
+            while (!q2.isEmpty()) {
+                q1.offer(q2.poll());
+            }
+        } else {
+            q2.offer(x);
+            while (!q1.isEmpty()) {
+                q2.offer(q1.poll());
+            }
+        }
+    }
+
+    public int pop() {
+        if (!q1.isEmpty()) return q1.poll();
+        else return q2.poll();
+    }
+
+    public int top() {
+        if (!q1.isEmpty()) return q1.peek();
+        else return q2.peek();
+    }
+
+    public boolean empty() {
+        return q1.isEmpty() && q2.isEmpty();
+    }
+}
+```
+
+## [227. 基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/)
+
+使用优先级实现（超时）：
+
+```java
+class Solution {
+    public int calculate(String s) {
+        char[] ch = s.toCharArray();
+        return calculate(ch, 0, ch.length - 1);
+    }
+    public int calculate(char[] ch, int left, int right) {
+        int op = -1, pri = 10000 - 1, cur_pri = 0, temp = 0;
+        for (int i = left; i <= right; i++) {
+            cur_pri = 10000;
+            switch (ch[i]) {
+                case '+':
+                case '-':
+                    cur_pri = 1 + temp;
+                    break;
+                case '*':
+                case '/':
+                    cur_pri = 2 + temp;
+                    break;
+                case '(':
+                    temp += 100;
+                    break;
+                case ')':
+                    temp -= 100;
+                    break;
+            }
+            if (cur_pri <= pri) {
+                pri = cur_pri;
+                op = i;
+            }
+
+        }
+        if (op == -1) {
+            int num = 0;
+            for (int j = left; j <= right; j++) {
+                if (ch[j] < '0' || ch[j] > '9') continue;
+                num = num * 10 + (ch[j] - '0');
+            }
+            return num;
+        }
+        int a = calculate(ch, left, op - 1);
+        int b = calculate(ch, op + 1, right);
+        switch (ch[op]) {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                return a / b;
+        }
+        return 0;
     }
 }
 ```
