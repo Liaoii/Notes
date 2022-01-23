@@ -925,3 +925,18 @@ class Solution {
 }
 ```
 
+## [面试题 02.07. 链表相交](https://leetcode-cn.com/problems/intersection-of-two-linked-lists-lcci/)
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode tempA = headA, tempB = headB;
+        while (tempA != tempB) {
+            tempA = tempA == null ? headB : tempA.next;
+            tempB = tempB == null ? headA : tempB.next;
+        }
+        return tempA;
+    }
+}
+```
+

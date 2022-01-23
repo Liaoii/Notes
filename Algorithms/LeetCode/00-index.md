@@ -6,3 +6,5 @@
 
 ## [3. 栈](03-stack.md)
 
+## [4. 二叉树](04-binary-tree.md)
+

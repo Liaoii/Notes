@@ -401,6 +401,39 @@ class MyStack {
 }
 ```
 
+使用单栈实现：
+
+```java
+class MyStack {
+
+    Queue<Integer> queue;
+
+    public MyStack() {
+        queue = new LinkedList<>();
+    }
+
+    public void push(int x) {
+        int len = queue.size();
+        queue.offer(x);
+        while (len-- > 0) {
+            queue.offer(queue.poll());
+        }
+    }
+
+    public int pop() {
+        return queue.poll();
+    }
+
+    public int top() {
+        return queue.peek();
+    }
+
+    public boolean empty() {
+        return queue.isEmpty();
+    }
+}
+```
+
 ## [227. 基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/)
 
 使用优先级实现（超时）：
@@ -462,6 +495,127 @@ class Solution {
 }
 ```
 
+使用栈实现：
+
+```java
+class Solution {
+    public int calculate(String s) {
+        s += '@';
+        char[] ch = s.toCharArray();
+        Stack<Integer> numberStack = new Stack<>();
+        Stack<Character> symbolStack = new Stack<>();
+        for (int i = 0, num = 0; i < ch.length; i++) {
+            char c = ch[i];
+            if (c == ' ') continue;
+            if (c - '0' >= 0 && c - '9' <= 0) {
+                num = num * 10 + (c - '0');
+                continue;
+            }
+            numberStack.push(num);
+            num = 0;
+            while (!symbolStack.empty() && level(c) <= level(symbolStack.peek())) {
+                int b = numberStack.pop();
+                int a = numberStack.pop();
+                numberStack.push(calc(a, symbolStack.pop(), b));
+            }
+            symbolStack.push(c);
+        }
+        return numberStack.pop();
+    }
+
+    private int calc(int a, char symbol, int b) {
+        switch (symbol) {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                return a / b;
+        }
+        return -1;
+    }
+
+    private int level(char c) {
+        switch (c) {
+            case '@':
+                return -1;
+            case '+':
+            case '-':
+                return 1;
+            case '*':
+            case '/':
+                return 2;
+        }
+        return 0;
+    }
+}
+```
+
+## [232. 用栈实现队列](https://leetcode-cn.com/problems/implement-queue-using-stacks/)
+
+```java
+class MyQueue {
+
+    private Stack<Integer> stack1;
+    private Stack<Integer> stack2;
+
+    public MyQueue() {
+        stack1 = new Stack<>();
+        stack2 = new Stack<>();
+    }
+
+    public void push(int x) {
+        stack1.push(x);
+
+    }
+
+    public int pop() {
+        if (stack2.isEmpty()) {
+            while (!stack1.isEmpty()) {
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.pop();
+    }
+
+    public int peek() {
+        if (stack2.isEmpty()) {
+            while (!stack1.isEmpty()) {
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.peek();
+    }
+
+    public boolean empty() {
+        return stack1.isEmpty() && stack2.isEmpty();
+    }
+}
+```
+
+## [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+
+```java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        if (head.next == null) return true;
+        int index = 0;
+        HashMap<Integer, ListNode> map = new HashMap<>();
+        while (head != null) {
+            map.put(++index, head);
+            head = head.next;
+        }
+        for (int i = 1; i <= index / 2; i++) {
+            int j = index - i + 1;
+            if (map.get(i).val != map.get(j).val) return false;
+        }
+        return true;
+    }
+}
+```
+
 ## [331. 验证二叉树的前序序列化](https://leetcode-cn.com/problems/verify-preorder-serialization-of-a-binary-tree/)
 
 ```java
@@ -478,6 +632,70 @@ class Solution {
             }
         }
         return list.size() == 1 && "#".equals(list.get(0));
+    }
+}
+```
+
+## [341. 扁平化嵌套列表迭代器](https://leetcode-cn.com/problems/flatten-nested-list-iterator/)
+
+```java
+public class NestedIterator implements Iterator<Integer> {
+
+    private List<Integer> list;
+
+    public NestedIterator(List<NestedInteger> nestedList) {
+        list = new ArrayList<>();
+        getList(nestedList, list);
+    }
+
+    private void getList(List<NestedInteger> nestedList, List<Integer> list) {
+        for (NestedInteger n : nestedList) {
+            if (n.isInteger()) {
+                list.add(n.getInteger());
+            } else {
+                getList(n.getList(), list);
+            }
+        }
+    }
+
+    @Override
+    public Integer next() {
+        return list.remove(0);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return list.size() > 0;
+    }
+}
+```
+
+## [636. 函数的独占时间](https://leetcode-cn.com/problems/exclusive-time-of-functions/)
+
+```java
+class Solution {
+    public int[] exclusiveTime(int n, List<String> logs) {
+        int[] ans = new int[n];
+        int lastIndex = 0;
+        Stack<Integer> iStack = new Stack<>();
+        for (int i = 0; i < logs.size(); i++) {
+            String s = logs.get(i);
+            String[] split = s.split(":");
+            int left = Integer.parseInt(split[0]);
+            int right = Integer.parseInt(split[2]);
+            if ("start".equals(split[1])) {
+                if (!iStack.empty()) {
+                    ans[iStack.peek()] += (right - lastIndex);
+                }
+                iStack.push(left);
+                lastIndex = right;
+            } else {
+                ans[left] += right - lastIndex + 1;
+                iStack.pop();
+                lastIndex = right + 1;
+            }
+        }
+        return ans;
     }
 }
 ```
@@ -682,6 +900,145 @@ class Solution {
             sb.append(chars[i]);
         }
         return sb.toString();
+    }
+}
+```
+
+## [1614. 括号的最大嵌套深度](https://leetcode-cn.com/problems/maximum-nesting-depth-of-the-parentheses/)
+
+使用递归实现：
+
+```java
+class Solution {
+    public int maxDepth(String s) {
+        char[] ch = s.toCharArray();
+        Stack<Character> stack = new Stack<>();
+        int max = 0;
+        for (char c : ch) {
+            if (c == '(') {
+                stack.push(c);
+                max = Math.max(max, stack.size());
+            } else if (c == ')') {
+                stack.pop();
+            }
+        }
+        return max;
+    }
+}
+```
+
+使用计数器进行优化：
+
+```java
+class Solution {
+    public int maxDepth(String s) {
+        char[] ch = s.toCharArray();
+        int max = 0;
+        for (int i = 0, count = 0; i < ch.length; i++) {
+            if (ch[i] == '(') {
+                count++;
+                max = Math.max(max, count);
+            } else if (ch[i] == ')') {
+                count--;
+            }
+        }
+        return max;
+    }
+}
+```
+
+## [1700. 无法吃午餐的学生数量](https://leetcode-cn.com/problems/number-of-students-unable-to-eat-lunch/)
+
+```java
+class Solution {
+    public int countStudents(int[] students, int[] sandwiches) {
+        int[] stuCount = new int[2];
+        for (int i = 0; i < students.length; i++) {
+            stuCount[students[i]]++;
+        }
+        for (int i = 0; i < sandwiches.length; i++) {
+            if (stuCount[sandwiches[i]] == 0) {
+                return stuCount[2 - sandwiches[i] - 1];
+            } else {
+                stuCount[sandwiches[i]]--;
+            }
+        }
+        return 0;
+    }
+}
+```
+
+## [面试题 02.06. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list-lcci/)
+
+```java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        List<Integer> list = new ArrayList<>();
+        while (head != null) {
+            list.add(head.val);
+            head = head.next;
+        }
+        for (int i = 0, j = list.size() - 1; i <= j; i++, j--) {
+            if (!list.get(i).equals(list.get(j))) return false;
+        }
+        return true;
+    }
+}
+```
+
+使用递归实现：
+
+```java
+class Solution {
+    private ListNode pre;
+
+    public boolean recursion(ListNode head) {
+        if (head.next != null) {
+            if (!recursion(head.next)) return false;
+        }
+        if (pre.val != head.val) return false;
+        pre = pre.next;
+        return true;
+    }
+
+    public boolean isPalindrome(ListNode head) {
+        if (head == null) return true;
+        pre = head;
+        return recursion(head);
+    }
+
+}
+```
+
+## [面试题 03.02. 栈的最小值](https://leetcode-cn.com/problems/min-stack-lcci/)
+
+```java
+class MinStack {
+
+    private Stack<Integer> iStack, mStack;
+
+    public MinStack() {
+        iStack = new Stack<>();
+        mStack = new Stack<>();
+    }
+
+    public void push(int x) {
+        iStack.push(x);
+        if (mStack.empty()) mStack.push(x);
+        else mStack.push(Math.min(mStack.peek(), x));
+    }
+
+    public void pop() {
+        iStack.pop();
+        mStack.pop();
+    }
+
+    public int top() {
+        return iStack.peek();
+    }
+
+    public int getMin() {
+        return mStack.peek();
     }
 }
 ```
