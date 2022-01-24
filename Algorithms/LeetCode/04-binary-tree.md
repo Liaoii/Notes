@@ -15,6 +15,24 @@ class Solution {
 }
 ```
 
+## [101. 对称二叉树](https://leetcode-cn.com/problems/symmetric-tree/)
+
+```java
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return compare(root.left, root.right);
+    }
+
+    private boolean compare(TreeNode left, TreeNode right) {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        if (left.val != right.val) return false;
+        if (!compare(left.left, right.right)) return false;
+        return compare(left.right, right.left);
+    }
+}
+```
+
 ## [103. 二叉树的锯齿形层序遍历](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
 
 ```java
@@ -42,6 +60,23 @@ class Solution {
         ans.get(k).add(root.val);
         getNext(root.left, k + 1, ans);
         getNext(root.right, k + 1, ans);
+    }
+}
+```
+
+## [104. 二叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/)
+
+```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        return getDepth(root, 0);
+    }
+
+    public int getDepth(TreeNode root, int k) {
+        if (root == null) return k;
+        int l = getDepth(root.left, k + 1);
+        int r = getDepth(root.right, k + 1);
+        return Math.max(l, r);
     }
 }
 ```
@@ -98,6 +133,24 @@ class Solution {
 }
 ```
 
+## [108. 将有序数组转换为二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/)
+
+```java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return createNode(nums, 0, nums.length - 1);
+    }
+
+    public TreeNode createNode(int[] nums, int left, int right) {
+        int mid = (right - left) / 2 + left;
+        TreeNode node = new TreeNode(nums[mid]);
+        if (mid - left > 0) node.left = createNode(nums, left, mid - 1);
+        if (right - mid > 0) node.right = createNode(nums, mid + 1, right);
+        return node;
+    }
+}
+```
+
 ## [110. 平衡二叉树](https://leetcode-cn.com/problems/balanced-binary-tree/)
 
 ```java
@@ -113,6 +166,23 @@ class Solution {
 
     public boolean isBalanced(TreeNode root) {
         return getHeight(root) >= 0;
+    }
+}
+```
+
+## [111. 二叉树的最小深度](https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/)
+
+```java
+class Solution {
+    public int minDepth(TreeNode root) {
+        return getMinDepth(root, 0);
+    }
+
+    public int getMinDepth(TreeNode root, int k) {
+        if (root == null) return k;
+        if (root.left == null) return getMinDepth(root.right, k + 1);
+        if (root.right == null) return getMinDepth(root.left, k + 1);
+        return Math.min(getMinDepth(root.right, k + 1), getMinDepth(root.left, k + 1));
     }
 }
 ```
