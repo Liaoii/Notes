@@ -247,6 +247,53 @@ class Solution {
 }
 ```
 
+## [235. 二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root.val > p.val && root.val < q.val) return root;
+        if (root.val < p.val && root.val > q.val) return root;
+        if (root.val == p.val) return p;
+        if (root.val == q.val) return q;
+        if (root.val < p.val) return lowestCommonAncestor(root.right, p, q);
+        return lowestCommonAncestor(root.left, p, q);
+    }
+}
+```
+
+## [257. 二叉树的所有路径](https://leetcode-cn.com/problems/binary-tree-paths/)
+
+```java
+class Solution {
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> ans = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        sb.append(root.val);
+        getPath(root, sb, ans);
+        return ans;
+    }
+
+    public void getPath(TreeNode root, StringBuilder sb, List<String> ans) {
+        if (root.left == null && root.right == null) {
+            ans.add(sb.toString());
+        }
+        if (root.left != null) {
+            StringBuilder temp = new StringBuilder();
+            temp.append(sb.toString());
+            temp.append("->").append(root.left.val);
+            getPath(root.left, temp, ans);
+        }
+        if (root.right != null) {
+            StringBuilder temp = new StringBuilder();
+            temp.append(sb.toString());
+            temp.append("->").append(root.right.val);
+            getPath(root.right, temp, ans);
+        }
+    }
+}
+```
+
 ## [589. N 叉树的前序遍历](https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/)
 
 ```java
@@ -263,6 +310,99 @@ class Solution {
         for (Node n : root.children) {
             getChild(n, ans);
         }
+    }
+}
+```
+
+## [662. 二叉树最大宽度](https://leetcode-cn.com/problems/maximum-width-of-binary-tree/)
+
+```java
+class Solution {
+    class Serial {
+        TreeNode node;
+        int serial;
+        Serial(TreeNode node, int serial) {
+            this.node = node;
+            this.serial = serial;
+        }
+    }
+
+    public int widthOfBinaryTree(TreeNode root) {
+        Queue<Serial> queue = new LinkedList<>();
+        queue.offer(new Serial(root, 0));
+        int ans = 0;
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            int left = queue.peek().serial, right = queue.peek().serial;
+            for (int i = 0; i < count; i++) {
+                TreeNode temp = queue.peek().node;
+                int ind = queue.peek().serial;
+                right = ind;
+                if (temp.left != null) queue.offer(new Serial(temp.left, (ind - left) * 2));
+                if (temp.right != null) queue.offer(new Serial(temp.right, (ind - left) * 2 + 1));
+                queue.poll();
+            }
+            ans = Math.max(ans, right - left + 1);
+        }
+        return ans;
+    }
+}
+```
+
+## [968. 监控二叉树](https://leetcode-cn.com/problems/binary-tree-cameras/)
+
+动态规划：
+
+```java
+class Solution {
+    public int minCameraCover(TreeNode root) {
+        int[][] dp = new int[2][2];
+        getDp(root, dp);
+        return Math.min(dp[0][1], dp[0][0]);
+    }
+
+    private void getDp(TreeNode root, int[][] dp) {
+        if (root == null) {
+            dp[0][0] = 0;
+            dp[0][1] = 10000;
+            dp[1][0] = 0;
+            dp[1][1] = 10000;
+            return;
+        }
+        if (root.left == null && root.right == null) {
+            dp[0][0] = 10000;
+            dp[0][1] = 1;
+            dp[1][0] = 0;
+            dp[1][1] = 1;
+            return;
+        }
+        int[][] l = new int[2][2];
+        int[][] r = new int[2][2];
+        getDp(root.left, l);
+        getDp(root.right, r);
+        dp[0][0] = Math.min(Math.min(l[0][1] + r[0][0], l[0][0] + r[0][1]), l[0][1] + r[0][1]);
+        dp[0][1] = Math.min(Math.min(l[1][0] + r[1][0], l[1][1] + r[1][1]), Math.min(l[1][0] + r[1][1], l[1][1] + r[1][0])) + 1;
+        dp[1][0] = Math.min(dp[0][0], l[0][0] + r[0][0]);
+        dp[1][1] = dp[0][1];
+    }
+}
+```
+
+## [剑指 Offer 26. 树的子结构](https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/)
+
+```java
+class Solution {
+    public boolean isSubStructure(TreeNode A, TreeNode B) {
+        if (A == null || B == null) return false;
+        if (A.val == B.val && isMatch(A, B)) return true;
+        return isSubStructure(A.left, B) || isSubStructure(A.right, B);
+    }
+
+    public boolean isMatch(TreeNode A, TreeNode B) {
+        if (B == null) return true;
+        if (A == null) return false;
+        if (A.val != B.val) return false;
+        return isMatch(A.left, B.left) && isMatch(A.right, B.right);
     }
 }
 ```
