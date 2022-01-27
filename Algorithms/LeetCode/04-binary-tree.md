@@ -294,6 +294,184 @@ class Solution {
 }
 ```
 
+## [404. 左叶子之和](https://leetcode-cn.com/problems/sum-of-left-leaves/)
+
+```java
+class Solution {
+    private int sum = 0;
+
+    public int sumOfLeftLeaves(TreeNode root) {
+        if (root == null) return 0;
+        if (root.left != null && root.left.left == null && root.left.right == null) sum += root.left.val;
+        sumOfLeftLeaves(root.left);
+        sumOfLeftLeaves(root.right);
+        return sum;
+    }
+}
+```
+
+## [501. 二叉搜索树中的众数](https://leetcode-cn.com/problems/find-mode-in-binary-search-tree/)
+
+使用哈希表进行实现：
+
+```java
+class Solution {
+    public int[] findMode(TreeNode root) {
+        Map<Integer, Integer> map = new HashMap<>();
+        getChild(root, map);
+        Integer max = null;
+        for (int i : map.keySet()) {
+            max = max == null ? map.get(i) : Math.max(max, map.get(i));
+        }
+        List<Integer> ans = new ArrayList<>();
+        for (int i : map.keySet()) {
+            if (max.equals(map.get(i))) ans.add(i);
+        }
+        int[] mode = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            mode[i] = ans.get(i);
+        }
+        return mode;
+    }
+
+    public void getChild(TreeNode root, Map<Integer, Integer> map) {
+        if (root == null) return;
+        getChild(root.left, map);
+        map.put(root.val, map.getOrDefault(root.val, 0) + 1);
+        getChild(root.right, map);
+    }
+}
+```
+
+不使用额外空间：
+
+```java
+class Solution {
+    int base, count, maxCount;
+    List<Integer> ans = new ArrayList<>();
+
+    public int[] findMode(TreeNode root) {
+        getChild(root);
+        int[] res = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++)
+            res[i] = ans.get(i);
+        return res;
+    }
+
+    public void getChild(TreeNode root) {
+        if (root == null) return;
+        getChild(root.left);
+        if (root.val == base) {
+            count++;
+        } else {
+            base = root.val;
+            count = 1;
+        }
+        if (count == maxCount) ans.add(root.val);
+        if (count > maxCount) {
+            maxCount = count;
+            ans.clear();
+            ans.add(root.val);
+        }
+        getChild(root.right);
+    }
+}
+```
+
+Morris中序遍历：
+
+## [530. 二叉搜索树的最小绝对差](https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/)
+
+```java
+class Solution {
+    public int getMinimumDifference(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        inOrder(root, list);
+        int ans = 100001;
+        for (int i = 1; i < list.size(); i++) {
+            ans = Math.min(ans, Math.abs(list.get(i) - list.get(i - 1)));
+        }
+        return ans;
+    }
+
+    private void inOrder(TreeNode root, List<Integer> list) {
+        if (root == null) return;
+        inOrder(root.left, list);
+        list.add(root.val);
+        inOrder(root.right, list);
+    }
+}
+```
+
+不使用额外存储：
+
+```java
+class Solution {
+    int cur = 100001;
+    int min = 100001;
+
+    public int getMinimumDifference(TreeNode root) {
+        inOrder(root);
+        return min;
+    }
+
+    private void inOrder(TreeNode root) {
+        if (root == null) return;
+        inOrder(root.left);
+        min = Math.min(min, Math.abs(root.val - cur));
+        cur = root.val;
+        inOrder(root.right);
+    }
+}
+```
+
+上一种解法的优化：
+
+```java
+class Solution {
+    int cur;
+    int min;
+
+    public int getMinimumDifference(TreeNode root) {
+        cur = -1;
+        min = Integer.MAX_VALUE;
+        inOrder(root);
+        return min;
+    }
+
+    private void inOrder(TreeNode root) {
+        if (root == null) return;
+        inOrder(root.left);
+        if (cur != -1) {
+            min = Math.min(min, Math.abs(cur - root.val));
+        }
+        cur = root.val;
+        inOrder(root.right);
+    }
+}
+```
+
+## [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
+
+```java
+class Solution {
+    int diameter = 0;
+
+    public int diameterOfBinaryTree(TreeNode root) {
+        getDiameter(root);
+        return diameter;
+    }
+
+    public int getDiameter(TreeNode root) {
+        if (root.left == null && root.right == null) return 1;
+        int left = root.left == null ? 0 : getDiameter(root.left);
+        int right = root.right == null ? 0 : getDiameter(root.right);
+        diameter = Math.max(diameter, left + right);
+        return Math.max(left, right) + 1;
+    }
+}
+```
+
 ## [589. N 叉树的前序遍历](https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/)
 
 ```java
