@@ -472,6 +472,47 @@ class Solution {
 }
 ```
 
+## [563. 二叉树的坡度](https://leetcode-cn.com/problems/binary-tree-tilt/)
+
+```java
+class Solution {
+    int ans;
+
+    public int findTilt(TreeNode root) {
+        ans = 0;
+        sum(root);
+        return ans;
+    }
+
+    public int sum(TreeNode root) {
+        if (root == null) return 0;
+        int left = sum(root.left);
+        int right = sum(root.right);
+        ans += Math.abs(left - right);
+        return left + root.val + right;
+    }
+}
+```
+
+## [572. 另一棵树的子树](https://leetcode-cn.com/problems/subtree-of-another-tree/)
+
+```java
+class Solution {
+    public boolean isSubtree(TreeNode root, TreeNode subRoot) {
+        if (root == null) return false;
+        if (root.val == subRoot.val && isMatch(root, subRoot)) return true;
+        return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);
+    }
+
+    public boolean isMatch(TreeNode root, TreeNode subRoot) {
+        if (root == null && subRoot == null) return true;
+        if (root == null || subRoot == null) return false;
+        if (root.val != subRoot.val) return false;
+        return isMatch(root.left, subRoot.left) && isMatch(root.right, subRoot.right);
+    }
+}
+```
+
 ## [589. N 叉树的前序遍历](https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/)
 
 ```java
@@ -491,6 +532,10 @@ class Solution {
     }
 }
 ```
+
+## [606. 根据二叉树创建字符串](https://leetcode-cn.com/problems/construct-string-from-binary-tree/)
+
+
 
 ## [662. 二叉树最大宽度](https://leetcode-cn.com/problems/maximum-width-of-binary-tree/)
 
