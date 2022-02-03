@@ -1,5 +1,50 @@
 # 并查集（Union Find）
 
+## [128. 最长连续序列](https://leetcode-cn.com/problems/longest-consecutive-sequence/)
+
+```java
+class Solution {
+    class UnionSet {
+        private int[] father, size;
+
+        public UnionSet(int len) {
+            father = new int[len];
+            size = new int[len];
+            for (int i = 0; i < len; i++) {
+                father[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        public int get(int x) {
+            return father[x] = (father[x] == x ? x : get(father[x]));
+        }
+
+        public void merge(int a, int b) {
+            size[get(b)] += size[get(a)];
+            father[get(a)] = get(b);
+        }
+    }
+
+    public int longestConsecutive(int[] nums) {
+        Map<Integer, Integer> map = new HashMap<>();
+        UnionSet set = new UnionSet(nums.length);
+        for (int i = 0; i < nums.length; i++) {
+            int x = nums[i];
+            if (map.containsKey(x)) continue;
+            if (map.containsKey(x - 1)) set.merge(i, map.get(x - 1));
+            if (map.containsKey(x + 1)) set.merge(i, map.get(x + 1));
+            map.put(x, i);
+        }
+        int ans = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (set.get(i) == i && set.size[i] > ans) ans = set.size[i];
+        }
+        return ans;
+    }
+}
+```
+
 ## [200. 岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
 
 ```java
@@ -113,6 +158,50 @@ class Solution {
 }
 ```
 
+## [947. 移除最多的同行或同列石头](https://leetcode-cn.com/problems/most-stones-removed-with-same-row-or-column/)
+
+```java
+class Solution {
+    class UnionSet {
+        private int[] father;
+
+        public UnionSet(int len) {
+            father = new int[len];
+            for (int i = 0; i < len; i++) {
+                father[i] = i;
+            }
+        }
+
+        public int get(int x) {
+            return father[x] = (father[x] == x ? x : get(father[x]));
+        }
+
+        public void merge(int a, int b) {
+            father[get(a)] = get(b);
+        }
+    }
+
+    public int removeStones(int[][] stones) {
+        HashMap<Integer, Integer> xMap = new HashMap<>();
+        HashMap<Integer, Integer> yMap = new HashMap<>();
+        UnionSet u = new UnionSet(stones.length);
+        for (int i = 0; i < stones.length; i++) {
+            int x = stones[i][0];
+            int y = stones[i][1];
+            if (xMap.containsKey(x)) u.merge(i, xMap.get(x));
+            if (yMap.containsKey(y)) u.merge(i, yMap.get(y));
+            xMap.put(x, i);
+            yMap.put(y, i);
+        }
+        int count = 0;
+        for (int i = 0; i < stones.length; i++) {
+            if (u.get(i) == i) count++;
+        }
+        return stones.length - count;
+    }
+}
+```
+
 ## [990. 等式方程的可满足性](https://leetcode-cn.com/problems/satisfiability-of-equality-equations/)
 
 ```java
@@ -151,6 +240,52 @@ class Solution {
             if (set.get(a) == set.get(b)) return false;
         }
         return true;
+    }
+}
+```
+
+## [1202. 交换字符串中的元素](https://leetcode-cn.com/problems/smallest-string-with-swaps/)
+
+```java
+class Solution {
+    class UnionSet {
+        private int[] father;
+
+        public UnionSet(int len) {
+            father = new int[len];
+            for (int i = 0; i < len; i++) {
+                father[i] = i;
+            }
+        }
+
+        public int get(int x) {
+            return father[x] = (father[x] == x ? x : get(father[x]));
+        }
+
+        public void merge(int a, int b) {
+            father[get(a)] = get(b);
+        }
+    }
+
+    public String smallestStringWithSwaps(String s, List<List<Integer>> pairs) {
+        UnionSet us = new UnionSet(s.length());
+        PriorityQueue<Character>[] ps = new PriorityQueue[s.length()];
+        for (List<Integer> list : pairs) {
+            int a = list.get(0);
+            int b = list.get(1);
+            us.merge(a, b);
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (ps[us.get(i)] == null) {
+                ps[us.get(i)] = new PriorityQueue<>();
+            }
+            ps[us.get(i)].offer(s.charAt(i));
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            sb.append(ps[us.get(i)].poll());
+        }
+        return sb.toString();
     }
 }
 ```
