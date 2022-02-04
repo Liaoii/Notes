@@ -12,3 +12,5 @@
 
 ## [6. 并查集](06-union-find.md)
 
+## [7. 快速排序](07-quick-sort.md)
+
