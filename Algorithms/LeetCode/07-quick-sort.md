@@ -1,5 +1,74 @@
 # 快速排序（Quick Sort）
 
+## [75. 颜色分类](https://leetcode-cn.com/problems/sort-colors/)
+
+```java
+class Solution {
+    public void sortColors(int[] nums) {
+        three_partition(nums, 0, nums.length - 1);
+    }
+
+    public void three_partition(int[] array, int left, int right) {
+        if (left >= right) return;
+        int l = -1, r = right + 1, i = left;
+        while (i < r) {
+            if (array[i] == 1) {
+                i++;
+            } else if (array[i] < 1) {
+                l++;
+                int temp = array[l];
+                array[l] = array[i];
+                array[i] = temp;
+                i++;
+            } else if (array[i] > 1) {
+                r--;
+                int temp = array[r];
+                array[r] = array[i];
+                array[i] = temp;
+            }
+        }
+    }
+}
+```
+
+## [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
+
+```java
+class Solution {
+    public ListNode sortList(ListNode head) {
+        if (head == null) return null;
+        int left = head.val, right = head.val;
+        double mid;
+        ListNode p = head, q, h1 = null, h2 = null;
+        while (p != null) {
+            left = Math.min(left, p.val);
+            right = Math.max(right, p.val);
+            p = p.next;
+        }
+        if (left == right) return head;
+        mid = (left + right) / 2.0;
+        p = head;
+        while (p != null) {
+            q = p.next;
+            if (p.val <= mid) {
+                p.next = h1;
+                h1 = p;
+            } else {
+                p.next = h2;
+                h2 = p;
+            }
+            p = q;
+        }
+        h1 = sortList(h1);
+        h2 = sortList(h2);
+        p = h1;
+        while (p.next != null) p = p.next;
+        p.next = h2;
+        return h1;
+    }
+}
+```
+
 ## [912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
 
 ```java

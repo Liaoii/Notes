@@ -134,6 +134,32 @@ class Solution {
 }
 ```
 
+## [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)
+
+```java
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        PriorityQueue<ListNode> pq = new PriorityQueue<>(new Comparator<ListNode>() {
+            @Override
+            public int compare(ListNode o1, ListNode o2) {
+                return o1.val - o2.val;
+            }
+        });
+        for (ListNode node : lists) {
+            if (node != null) pq.offer(node);
+        }
+        ListNode pre = new ListNode(), p = pre;
+        while (!pq.isEmpty()) {
+            ListNode temp = pq.poll();
+            p.next = new ListNode(temp.val);
+            p = p.next;
+            if (temp.next != null) pq.offer(temp.next);
+        }
+        return pre.next;
+    }
+}
+```
+
 ## [24. 两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
 
 ```java
