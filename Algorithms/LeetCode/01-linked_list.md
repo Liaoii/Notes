@@ -1,6 +1,6 @@
 # 链表（Linked List）
 
-## [2. 两数相加](https://leetcode-cn.com/problems/add-two-numbers/)
+## [2. 两数相加*](https://leetcode-cn.com/problems/add-two-numbers/)
 
 常规解法：
 
@@ -32,7 +32,7 @@ class Solution {
 }
 ```
 
-## [19. 删除链表的倒数第N个结点](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
+## [19. 删除链表的倒数第N个结点*](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
 
 > 常规解法：
 >
@@ -96,7 +96,43 @@ class Solution {
 }
 ```
 
-## [21. 合并两个有序链表](https://leetcode-cn.com/problems/merge-two-sorted-lists/)
+使用栈实现：
+
+```java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode pre = new ListNode(0, head), p = pre;
+        Stack<ListNode> stack = new Stack<>();
+        while (p != null) {
+            stack.push(p);
+            p = p.next;
+        }
+        while (n-- > 0) stack.pop();
+        p = stack.peek();
+        p.next = p.next.next;
+        return pre.next;
+    }
+}
+```
+
+2022-02-07双指针解法：
+
+```java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode pre = new ListNode(0, head), indN = pre, p = pre;
+        while (n-- > 0) indN = indN.next;
+        while (indN.next != null) {
+            p = p.next;
+            indN = indN.next;
+        }
+        p.next = p.next.next;
+        return pre.next;
+    }
+}
+```
+
+## [21. 合并两个有序链表*](https://leetcode-cn.com/problems/merge-two-sorted-lists/)
 
 常规解法：
 
@@ -134,6 +170,56 @@ class Solution {
 }
 ```
 
+2022-02-07优化上一个解法：
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        if (list1 == null && list2 == null) return null;
+        ListNode ans = new ListNode(), p = ans;
+        while (true) {
+            if (list1 == null) {
+                p.next = list2;
+                break;
+            }
+            if (list2 == null) {
+                p.next = list1;
+                break;
+            }
+            if (list1.val <= list2.val) {
+                p.next = list1;
+                list1 = list1.next;
+            } else {
+                p.next = list2;
+                list2 = list2.next;
+            }
+            p = p.next;
+        }
+        return ans.next;
+    }
+}
+```
+
+使用递归求解：
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        if (list1 == null) {
+            return list2;
+        } else if (list2 == null) {
+            return list1;
+        } else if (list1.val < list2.val) {
+            list1.next = mergeTwoLists(list1.next, list2);
+            return list1;
+        } else {
+            list2.next = mergeTwoLists(list1, list2.next);
+            return list2;
+        }
+    }
+}
+```
+
 ## [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)
 
 ```java
@@ -159,6 +245,34 @@ class Solution {
     }
 }
 ```
+
+2022-02-07优化优先队列解法，避免重新开创空间：
+
+```java
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        PriorityQueue<ListNode> pq = new PriorityQueue<>(new Comparator<ListNode>() {
+            @Override
+            public int compare(ListNode o1, ListNode o2) {
+                return o1.val - o2.val;
+            }
+        });
+        for (ListNode node : lists) {
+            if (node != null) pq.offer(node);
+        }
+        ListNode pre = new ListNode(), p = pre;
+        while (!pq.isEmpty()) {
+            ListNode temp = pq.poll();
+            p.next = temp;
+            p = p.next;
+            if (temp.next != null) pq.offer(temp.next);
+        }
+        return pre.next;
+    }
+}
+```
+
+
 
 ## [24. 两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
 
@@ -362,6 +476,61 @@ class Solution {
         ListNode p = reverseN(start.next, count);
         start.next = p;
         return pre.next;
+    }
+}
+```
+
+## [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+
+```java
+class Solution {
+    public TreeNode sortedListToBST(ListNode head) {
+        int len = 0;
+        ListNode pre = head;
+        while (pre != null) {
+            len++;
+            pre = pre.next;
+        }
+        return createTree(head, 1, len);
+    }
+
+    public TreeNode createTree(ListNode head, int left, int right) {
+        if (left == right) {
+            return new TreeNode(head.val);
+        } else if (left > right) {
+            return null;
+        }
+        int mid = (left + right) / 2, m = mid;
+        ListNode p = head;
+        while (--m > 0) p = p.next;
+        TreeNode ans = new TreeNode(p.val);
+        ans.left = createTree(head, left, mid - 1);
+        ans.right = createTree(p.next, 1, right - mid);
+        return ans;
+    }
+}
+```
+
+## [114. 二叉树展开为链表](https://leetcode-cn.com/problems/flatten-binary-tree-to-linked-list/)
+
+```java
+class Solution {
+    public void flatten(TreeNode root) {
+        List<TreeNode> list = new ArrayList<>();
+        getChild(root, list);
+        for (int i = 1; i < list.size(); i++) {
+            TreeNode pre = list.get(i - 1);
+            TreeNode cur = list.get(i);
+            pre.left = null;
+            pre.right = cur;
+        }
+    }
+
+    private void getChild(TreeNode root, List<TreeNode> list) {
+        if (root == null) return;
+        list.add(root);
+        getChild(root.left, list);
+        getChild(root.right, list);
     }
 }
 ```
