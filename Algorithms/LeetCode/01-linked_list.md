@@ -1693,6 +1693,135 @@ class Solution {
 }
 ```
 
+## [剑指 Offer 52. 两个链表的第一个公共节点](https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/)
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode tempA = headA, tempB = headB;
+        while (tempA != tempB) {
+            tempA = tempA == null ? headB : tempA.next;
+            tempB = tempB == null ? headA : tempB.next;
+        }
+        return tempA;
+    }
+}
+```
+
+## [剑指 Offer II 021. 删除链表的倒数第 n 个结点](https://leetcode-cn.com/problems/SLwz0R/)
+
+```java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode ans = new ListNode(0, head), back = ans, front = ans;
+        while (n-- > 0) {
+            front = front.next;
+        }
+        while (front.next != null) {
+            front = front.next;
+            back = back.next;
+        }
+        back.next = back.next.next;
+        return ans.next;
+    }
+}
+```
+
+## [剑指 Offer II 022. 链表中环的入口节点](https://leetcode-cn.com/problems/c32eOV/)
+
+```java
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        if (head == null) return null;
+        ListNode slow = head, fast = head;
+        do {
+            slow = slow.next;
+            fast = fast.next == null ? null : fast.next.next;
+        } while (slow != fast && fast != null);
+        if (fast == null) return null;
+        slow = head;
+        while (slow != fast) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return slow;
+    }
+}
+```
+
+## [剑指 Offer II 023. 两个链表的第一个重合节点](https://leetcode-cn.com/problems/3u1WK4/)
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode tempA = headA, tempB = headB;
+        while (tempA != tempB) {
+            tempA = tempA == null ? headB : tempA.next;
+            tempB = tempB == null ? headA : tempB.next;
+        }
+        return tempA;
+    }
+}
+```
+
+## [剑指 Offer II 024. 反转链表](https://leetcode-cn.com/problems/UHnkqh/)
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode ans = null;
+        while (head != null) {
+            ListNode ne = head.next;
+            head.next = ans;
+            ans = head;
+            head = ne;
+        }
+        return ans;
+    }
+}
+```
+
+## [剑指 Offer II 025. 链表中的两数相加](https://leetcode-cn.com/problems/lMSNwu/)
+
+```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode ans = new ListNode();
+        l1 = reverse(l1);
+        l2 = reverse(l2);
+        int carry = 0;
+        while (l1 != null || l2 != null) {
+            int val1 = l1 == null ? 0 : l1.val;
+            int val2 = l2 == null ? 0 : l2.val;
+            int val = (val1 + val2 + carry) % 10;
+            ListNode temp = new ListNode(val);
+            temp.next = ans.next;
+            ans.next = temp;
+            carry = (val1 + val2 + carry) / 10;
+            if (l1 != null) l1 = l1.next;
+            if (l2 != null) l2 = l2.next;
+        }
+        if (carry > 0) {
+            ListNode temp = new ListNode(carry);
+            temp.next = ans.next;
+            ans.next = temp;
+        }
+        return ans.next;
+    }
+
+    public ListNode reverse(ListNode head) {
+        ListNode ans = null;
+        while (head != null) {
+            ListNode ne = head.next;
+            head.next = ans;
+            ans = head;
+            head = ne;
+        }
+        return ans;
+    }
+}
+```
+
 ## [剑指 Offer II 026. 重排链表](https://leetcode-cn.com/problems/LGjMqU/)
 
 ```java
