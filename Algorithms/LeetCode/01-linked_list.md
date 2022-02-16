@@ -1131,6 +1131,87 @@ class Solution {
 }
 ```
 
+## [146. LRU 缓存](https://leetcode-cn.com/problems/lru-cache/)
+
+```java
+class LRUCache {
+
+    class DeLinked {
+        int key;
+        int value;
+        DeLinked pre;
+        DeLinked next;
+
+        DeLinked() {}
+
+        DeLinked(int key, int value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    private int capacity, size;
+    private HashMap<Integer, DeLinked> map = new HashMap<>();
+    private DeLinked head, tail;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        head = new DeLinked();
+        tail = new DeLinked();
+        head.next = tail;
+        tail.pre = head;
+    }
+
+    public int get(int key) {
+        DeLinked deLinked = map.get(key);
+        if (deLinked == null) return -1;
+        moveToHead(deLinked);
+        return deLinked.value;
+    }
+
+    public void put(int key, int value) {
+        DeLinked deLinked = map.get(key);
+        if (deLinked == null) {
+            deLinked = new DeLinked(key, value);
+            addAtHead(deLinked);
+            map.put(key, deLinked);
+            size++;
+            if (size > capacity) {
+                DeLinked tail = deleteTail();
+                map.remove(tail.key);
+                size--;
+            }
+        } else {
+            deLinked.value = value;
+            moveToHead(deLinked);
+        }
+    }
+
+    private void moveToHead(DeLinked deLinked) {
+        deleteCurrent(deLinked);
+        addAtHead(deLinked);
+    }
+
+    private void deleteCurrent(DeLinked deLinked) {
+        deLinked.pre.next = deLinked.next;
+        deLinked.next.pre = deLinked.pre;
+    }
+
+    private void addAtHead(DeLinked deLinked) {
+        deLinked.next = head.next;
+        head.next.pre = deLinked;
+        deLinked.pre = head;
+        head.next = deLinked;
+    }
+
+    private DeLinked deleteTail() {
+        DeLinked res = tail.pre;
+        deleteCurrent(res);
+        return res;
+    }
+}
+```
+
 ## [147. 对链表进行插入排序](https://leetcode-cn.com/problems/insertion-sort-list/)
 
 ```java
@@ -1693,6 +1774,168 @@ class Solution {
 }
 ```
 
+## [2095. 删除链表的中间节点](https://leetcode-cn.com/problems/delete-the-middle-node-of-a-linked-list/)
+
+```java
+class Solution {
+    public ListNode deleteMiddle(ListNode head) {
+        if (head == null || head.next == null) return null;
+        ListNode ans = new ListNode(0, head), h = head;
+        int count = 0;
+        while (h != null) {
+            h = h.next;
+            count++;
+        }
+        count = count / 2;
+        while (--count > 0) {
+            head = head.next;
+        }
+        head.next = head.next.next;
+        return ans.next;
+    }
+}
+```
+
+## [2130. 链表最大孪生和](https://leetcode-cn.com/problems/maximum-twin-sum-of-a-linked-list/)
+
+```java
+class Solution {
+    private int ans = 0;
+
+    public int pairSum(ListNode head) {
+        pair(head, head);
+        return ans;
+    }
+
+    public ListNode pair(ListNode tail, ListNode pre) {
+        if (tail == null) return pre;
+        ListNode p = pair(tail.next, pre);
+        ans = Math.max(ans, p.val + tail.val);
+        return p.next;
+    }
+}
+```
+
+## [剑指 Offer 06. 从尾到头打印链表](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
+
+```java
+class Solution {
+
+    public int[] reversePrint(ListNode head) {
+        return reverse(head, 0);
+    }
+
+    public int[] reverse(ListNode head, int length) {
+        if (head == null) return new int[length];
+        int[] ans = reverse(head.next, length + 1);
+        ans[ans.length - length - 1] = head.val;
+        return ans;
+    }
+}
+```
+
+## [剑指 Offer 18. 删除链表的节点](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/)
+
+```java
+class Solution {
+    public ListNode deleteNode(ListNode head, int val) {
+        ListNode pre = new ListNode(0, head), p = pre;
+        while (p.next != null) {
+            if (p.next.val == val) {
+                p.next = p.next.next;
+                break;
+            } else {
+                p = p.next;
+            }
+        }
+        return pre.next;
+    }
+}
+```
+
+## [剑指 Offer 22. 链表中倒数第k个节点](https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/)
+
+```java
+class Solution {
+    public ListNode getKthFromEnd(ListNode head, int k) {
+        ListNode front = head, ans = head;
+        while (k-- > 0) front = front.next;
+        while (front != null) {
+            ans = ans.next;
+            front = front.next;
+        }
+        return ans;
+    }
+}
+```
+
+## [剑指 Offer 24. 反转链表](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/)
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode ans = null;
+        while (head != null) {
+            ListNode ne = head.next;
+            head.next = ans;
+            ans = head;
+            head = ne;
+        }
+        return ans;
+    }
+}
+```
+
+## [剑指 Offer 25. 合并两个排序的链表](https://leetcode-cn.com/problems/he-bing-liang-ge-pai-xu-de-lian-biao-lcof/)
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if (l1 == null) return l2;
+        if (l2 == null) return l1;
+        if (l1.val <= l2.val) {
+            l1.next = mergeTwoLists(l1.next, l2);
+            return l1;
+        } else {
+            l2.next = mergeTwoLists(l1, l2.next);
+            return l2;
+        }
+    }
+}
+```
+
+## [剑指 Offer 35. 复杂链表的复制](https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof/)
+
+```java
+class Solution {
+    public Node copyRandomList(Node head) {
+        if (head == null) return null;
+        Node p = head;
+        while (p != null) {
+            Node copy = new Node(p.val);
+            copy.random = p.random;
+            copy.next = p.next;
+            p.next = copy;
+            p = p.next.next;
+        }
+        p = head.next;
+        while (p != null) {
+            p.random = p.random == null ? null : p.random.next;
+            p = p.next == null ? null : p.next.next;
+        }
+        Node h = head;
+        p = head.next;
+        while (h != null) {
+            Node temp = h.next;
+            h.next = h.next.next;
+            temp.next = temp.next == null ? null : temp.next.next;
+            h = h.next;
+        }
+        return p;
+    }
+}
+```
+
 ## [剑指 Offer 52. 两个链表的第一个公共节点](https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/)
 
 ```java
@@ -1897,6 +2140,88 @@ class Solution {
             }
         }
         return head;
+    }
+}
+```
+
+## [剑指 Offer II 031. 最近最少使用缓存](https://leetcode-cn.com/problems/OrIXps/)
+
+```java
+class LRUCache {
+
+    class DeLinked {
+        int key;
+        int value;
+        DeLinked pre;
+        DeLinked next;
+
+        DeLinked() {
+        }
+
+        DeLinked(int key, int value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    private int capacity, size;
+    private HashMap<Integer, DeLinked> map = new HashMap<>();
+    private DeLinked head, tail;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        head = new DeLinked();
+        tail = new DeLinked();
+        head.next = tail;
+        tail.pre = head;
+    }
+
+    public int get(int key) {
+        DeLinked deLinked = map.get(key);
+        if (deLinked == null) return -1;
+        moveToHead(deLinked);
+        return deLinked.value;
+    }
+
+    public void put(int key, int value) {
+        DeLinked deLinked = map.get(key);
+        if (deLinked == null) {
+            deLinked = new DeLinked(key, value);
+            addAtHead(deLinked);
+            map.put(key, deLinked);
+            size++;
+            if (size > capacity) {
+                DeLinked tail = deleteTail();
+                map.remove(tail.key);
+                size--;
+            }
+        } else {
+            deLinked.value = value;
+            moveToHead(deLinked);
+        }
+    }
+
+    private void moveToHead(DeLinked deLinked) {
+        deleteCurrent(deLinked);
+        addAtHead(deLinked);
+    }
+
+    private void deleteCurrent(DeLinked deLinked) {
+        deLinked.pre.next = deLinked.next;
+        deLinked.next.pre = deLinked.pre;
+    }
+
+    private void addAtHead(DeLinked deLinked) {
+        deLinked.next = head.next;
+        head.next.pre = deLinked;
+        deLinked.pre = head;
+        head.next = deLinked;
+    }
+
+    private DeLinked deleteTail() {
+        DeLinked res = tail.pre;
+        deleteCurrent(res);
+        return res;
     }
 }
 ```
