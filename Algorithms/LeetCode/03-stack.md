@@ -61,6 +61,38 @@ class Solution {
 }
 ```
 
+## [71. 简化路径](https://leetcode-cn.com/problems/simplify-path/)
+
+```java
+class Solution {
+    public String simplifyPath(String path) {
+        String[] split = path.split("/");
+        Stack<String> stack = new Stack<>();
+        for (String str : split) {
+            if ("".equals(str)) continue;
+            if (".".equals(str)) {
+
+            } else if ("..".equals(str)) {
+                if (!stack.isEmpty()) {
+                    stack.pop();
+                }
+            } else {
+                stack.push(str);
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        if (stack.isEmpty()) {
+            sb.append("/");
+        } else {
+            for (String str : stack) {
+                sb.append("/").append(str);
+            }
+        }
+        return sb.toString();
+    }
+}
+```
+
 ## [94. 二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)
 
 使用递归实现：
@@ -254,6 +286,38 @@ class Solution {
 }
 ```
 
+## [150. 逆波兰表达式求值](https://leetcode-cn.com/problems/evaluate-reverse-polish-notation/)
+
+```java
+class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack<Integer> stack = new Stack<>();
+        for (String str : tokens) {
+            if ("+".equals(str)) {
+                int second = stack.pop();
+                int first = stack.pop();
+                stack.push(first + second);
+            } else if ("-".equals(str)) {
+                int second = stack.pop();
+                int first = stack.pop();
+                stack.push(first - second);
+            } else if ("*".equals(str)) {
+                int second = stack.pop();
+                int first = stack.pop();
+                stack.push(first * second);
+            } else if ("/".equals(str)) {
+                int second = stack.pop();
+                int first = stack.pop();
+                stack.push(first / second);
+            } else {
+                stack.push(Integer.parseInt(str));
+            }
+        }
+        return stack.pop();
+    }
+}
+```
+
 ## [155. 最小栈](https://leetcode-cn.com/problems/min-stack/)
 
 ```java
@@ -316,6 +380,35 @@ class MinStack {
 
     public int getMin() {
         return mStack.peek();
+    }
+}
+```
+
+## [173. 二叉搜索树迭代器](https://leetcode-cn.com/problems/binary-search-tree-iterator/)
+
+```java
+class BSTIterator {
+    private List<TreeNode> list;
+    private int index;
+
+    public BSTIterator(TreeNode root) {
+        list = new ArrayList<>();
+        getChild(root, list);
+    }
+
+    private void getChild(TreeNode root, List<TreeNode> list) {
+        if (root == null) return;
+        getChild(root.left, list);
+        list.add(root);
+        getChild(root.right, list);
+    }
+
+    public int next() {
+        return list.get(index++).val;
+    }
+
+    public boolean hasNext() {
+        return index < list.size();
     }
 }
 ```
@@ -670,6 +763,49 @@ public class NestedIterator implements Iterator<Integer> {
 }
 ```
 
+## [496. 下一个更大元素 I](https://leetcode-cn.com/problems/next-greater-element-i/)
+
+```java
+class Solution {
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums2.length; i++) map.put(nums2[i], i);
+        int[] ans = new int[nums1.length];
+        for (int i = 0; i < nums1.length; i++) {
+            int a = -1;
+            for (int j = map.get(nums1[i]) + 1; j < nums2.length; j++) {
+                if (nums2[j] > nums1[i]) {
+                    a = nums2[j];
+                    break;
+                }
+            }
+            ans[i] = a;
+        }
+        return ans;
+    }
+}
+```
+
+## [590. N 叉树的后序遍历](https://leetcode-cn.com/problems/n-ary-tree-postorder-traversal/)
+
+```java
+class Solution {
+    public List<Integer> postorder(Node root) {
+        List<Integer> ans = new ArrayList<>();
+        getChild(root, ans);
+        return ans;
+    }
+
+    public void getChild(Node root, List<Integer> ans) {
+        if (root == null) return;
+        for (Node node : root.children) {
+            getChild(node, ans);
+        }
+        ans.add(root.val);
+    }
+}
+```
+
 ## [636. 函数的独占时间](https://leetcode-cn.com/problems/exclusive-time-of-functions/)
 
 ```java
@@ -729,6 +865,55 @@ class Solution {
 }
 ```
 
+## [716. 最大栈](https://leetcode-cn.com/problems/max-stack/)
+
+```java
+class MaxStack {
+    private Stack<Integer> numStack;
+    private Stack<Integer> maxStack;
+
+    public MaxStack() {
+        numStack = new Stack<>();
+        maxStack = new Stack<>();
+    }
+
+    public void push(int x) {
+        numStack.push(x);
+        if (maxStack.isEmpty()) {
+            maxStack.push(x);
+        } else {
+            maxStack.push(Math.max(maxStack.peek(), x));
+        }
+    }
+
+    public int pop() {
+        maxStack.pop();
+        return numStack.pop();
+    }
+
+    public int top() {
+        return numStack.peek();
+    }
+
+    public int peekMax() {
+        return maxStack.peek();
+    }
+
+    public int popMax() {
+        int max = maxStack.peek();
+        Stack<Integer> temp = new Stack<>();
+        while (!numStack.isEmpty() && numStack.peek() != max) {
+            temp.push(pop());
+        }
+        int ans = pop();
+        while (!temp.isEmpty()) {
+            push(temp.pop());
+        }
+        return ans;
+    }
+}
+```
+
 ## [844. 比较含退格的字符串](https://leetcode-cn.com/problems/backspace-string-compare/)
 
 ```java
@@ -754,6 +939,33 @@ class Solution {
                 tStack.push(c);
             }
         }
+    }
+}
+```
+
+## [897. 递增顺序搜索树](https://leetcode-cn.com/problems/increasing-order-search-tree/)
+
+```java
+class Solution {
+    public TreeNode increasingBST(TreeNode root) {
+        List<TreeNode> list = new ArrayList<>();
+        getChild(root, list);
+        TreeNode ans = new TreeNode(), p = ans;
+        for (TreeNode node : list) {
+            System.out.print(node.val + " ");
+            node.left = null;
+            node.right = null;
+            p.right = node;
+            p = node;
+        }
+        return ans.right;
+    }
+
+    private void getChild(TreeNode root, List<TreeNode> list) {
+        if (root == null) return;
+        getChild(root.left, list);
+        list.add(root);
+        getChild(root.right, list);
     }
 }
 ```
@@ -812,6 +1024,33 @@ class Solution {
             }
         }
         return sb.toString();
+    }
+}
+```
+
+## [1047. 删除字符串中的所有相邻重复项](https://leetcode-cn.com/problems/remove-all-adjacent-duplicates-in-string/)
+
+```java
+class Solution {
+    public String removeDuplicates(String s) {
+        char[] chars = s.toCharArray();
+        Stack<Character> stack = new Stack<>();
+        for (char c : chars) {
+            if (stack.isEmpty()) {
+                stack.push(c);
+            } else {
+                if (stack.peek() == c) {
+                    stack.pop();
+                } else {
+                    stack.push(c);
+                }
+            }
+        }
+        StringBuilder ans = new StringBuilder();
+        for (char c : stack) {
+            ans.append(c);
+        }
+        return ans.toString();
     }
 }
 ```
@@ -904,6 +1143,109 @@ class Solution {
 }
 ```
 
+## [1441. 用栈操作构建数组](https://leetcode-cn.com/problems/build-an-array-with-stack-operations/)
+
+```java
+class Solution {
+    public List<String> buildArray(int[] target, int n) {
+        List<String> ans = new ArrayList<>();
+        int start = 0;
+        for (int cur : target) {
+            int diff = cur - start - 1;
+            while (diff-- > 0) {
+                ans.add("Push");
+                ans.add("Pop");
+            }
+            ans.add("Push");
+            start = cur;
+        }
+        return ans;
+    }
+}
+```
+
+## [1475. 商品折扣后的最终价格](https://leetcode-cn.com/problems/final-prices-with-a-special-discount-in-a-shop/)
+
+使用单调栈求解：
+
+```java
+class Solution {
+    public int[] finalPrices(int[] prices) {
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0; i < prices.length; i++) {
+            while (!stack.isEmpty() && prices[stack.peek()] >= prices[i]) {
+                int index = stack.pop();
+                prices[index] -= prices[i];
+            }
+            stack.push(i);
+        }
+        return prices;
+    }
+}
+```
+
+暴力解法：
+
+```java
+class Solution {
+    public int[] finalPrices(int[] prices) {
+        for (int i = 0; i < prices.length; i++) {
+            for (int j = i + 1; j < prices.length; j++) {
+                if (prices[j] <= prices[i]) {
+                    prices[i] -= prices[j];
+                    break;
+                }
+            }
+        }
+        return prices;
+    }
+}
+```
+
+## [1544. 整理字符串](https://leetcode-cn.com/problems/make-the-string-great/)
+
+```java
+class Solution {
+    public String makeGood(String s) {
+        char[] chars = s.toCharArray();
+        Stack<Character> stack = new Stack<>();
+        for (char c : chars) {
+            if (stack.isEmpty()) {
+                stack.push(c);
+            } else {
+                if (Math.abs(stack.peek() - c) == 32) {
+                    stack.pop();
+                } else {
+                    stack.push(c);
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (char c : stack) sb.append(c);
+        return sb.toString();
+    }
+}
+```
+
+## [1598. 文件夹操作日志搜集器](https://leetcode-cn.com/problems/crawler-log-folder/)
+
+```java
+class Solution {
+    public int minOperations(String[] logs) {
+        Stack<String> stack = new Stack<>();
+        for (String str : logs) {
+            if ("./".equals(str)) {
+            } else if ("../".equals(str)) {
+                if (!stack.isEmpty()) stack.pop();
+            } else {
+                stack.push(str);
+            }
+        }
+        return stack.size();
+    }
+}
+```
+
 ## [1614. 括号的最大嵌套深度](https://leetcode-cn.com/problems/maximum-nesting-depth-of-the-parentheses/)
 
 使用递归实现：
@@ -968,6 +1310,67 @@ class Solution {
 }
 ```
 
+## [剑指 Offer 30. 包含min函数的栈](https://leetcode-cn.com/problems/bao-han-minhan-shu-de-zhan-lcof/)
+
+```java
+class MinStack {
+    private Stack<Integer> numStack;
+    private Stack<Integer> minStack;
+
+    public MinStack() {
+        numStack = new Stack<>();
+        minStack = new Stack<>();
+    }
+
+    public void push(int x) {
+        numStack.push(x);
+        if (minStack.isEmpty()) {
+            minStack.push(x);
+        } else {
+            minStack.push(Math.min(minStack.peek(), x));
+        }
+    }
+
+    public void pop() {
+        numStack.pop();
+        minStack.pop();
+    }
+
+    public int top() {
+        return numStack.peek();
+    }
+
+    public int min() {
+        return minStack.peek();
+    }
+}
+```
+
+## [剑指 Offer II 052. 展平二叉搜索树](https://leetcode-cn.com/problems/NYBBNL/)
+
+```java
+class Solution {
+    public TreeNode increasingBST(TreeNode root) {
+        List<TreeNode> list = new ArrayList<>();
+        getChild(root, list);
+        TreeNode ans = new TreeNode(), p = ans;
+        for (TreeNode node : list) {
+            node.left = null;
+            p.right = node;
+            p = node;
+        }
+        return ans.right;
+    }
+
+    private void getChild(TreeNode root, List<TreeNode> list) {
+        if (root == null) return;
+        getChild(root.left, list);
+        list.add(root);
+        getChild(root.right, list);
+    }
+}
+```
+
 ## [面试题 02.06. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list-lcci/)
 
 ```java
@@ -1007,6 +1410,100 @@ class Solution {
         return recursion(head);
     }
 
+}
+```
+
+## [面试题 03.01. 三合一](https://leetcode-cn.com/problems/three-in-one-lcci/)
+
+```java
+class TripleInOne {
+
+    private int[] data;
+    private int stackSize, firstHead, secondHead, thirdHead, firstSize, secondSize, thirdSize;
+
+    public TripleInOne(int stackSize) {
+        data = new int[stackSize * 3];
+        this.stackSize = stackSize;
+        this.firstHead = 0;
+        this.secondHead = stackSize;
+        this.thirdHead = stackSize * 2;
+    }
+
+    public void push(int stackNum, int value) {
+        switch (stackNum) {
+            case 0: {
+                if (firstSize == stackSize) return;
+                data[firstSize++] = value;
+            }
+            break;
+            case 1: {
+                if (secondSize == stackSize) return;
+                data[stackSize + secondSize] = value;
+                secondSize++;
+            }
+            break;
+            case 2: {
+                if (thirdSize == stackSize) return;
+                data[stackSize * 2 + thirdSize] = value;
+                thirdSize++;
+            }
+            break;
+        }
+    }
+
+    public int pop(int stackNum) {
+        switch (stackNum) {
+            case 0: {
+                if (firstSize == 0) return -1;
+                firstSize--;
+                return data[firstSize];
+            }
+            case 1: {
+                if (secondSize == 0) return -1;
+                secondSize--;
+                return data[stackSize + secondSize];
+            }
+            case 2: {
+                if (thirdSize == 0) return -1;
+                thirdSize--;
+                return data[stackSize * 2 + thirdSize];
+            }
+        }
+        return -1;
+    }
+
+    public int peek(int stackNum) {
+        switch (stackNum) {
+            case 0: {
+                if (firstSize == 0) return -1;
+                return data[firstSize - 1];
+            }
+            case 1: {
+                if (secondSize == 0) return -1;
+                return data[stackSize + secondSize - 1];
+            }
+            case 2: {
+                if (thirdSize == 0) return -1;
+                return data[stackSize * 2 + thirdSize - 1];
+            }
+        }
+        return -1;
+    }
+
+    public boolean isEmpty(int stackNum) {
+        switch (stackNum) {
+            case 0: {
+                return firstSize == 0;
+            }
+            case 1: {
+                return secondSize == 0;
+            }
+            case 2: {
+                return thirdSize == 0;
+            }
+        }
+        return true;
+    }
 }
 ```
 

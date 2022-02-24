@@ -134,6 +134,83 @@ class Solution {
 }
 ```
 
+20220221使用双队列求解：
+
+```java
+class Solution {
+    private Queue<Integer> numQueue;
+    private Deque<Integer> maxQueue;
+
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int length = nums.length - k + 1;
+        int[] ans = new int[length];
+        numQueue = new LinkedList<>();
+        maxQueue = new LinkedList<>();
+        for (int i = 0; i < k; i++) {
+            offer(nums[i]);
+        }
+        ans[0] = maxQueue.peekFirst();
+        for (int i = 0; i < length - 1; i++) {
+            offer(nums[i + k]);
+            pop();
+            ans[i + 1] = maxQueue.peekFirst();
+        }
+        return ans;
+    }
+
+    private void offer(int num) {
+        numQueue.offer(num);
+        while (!maxQueue.isEmpty() && maxQueue.peekLast() < num) {
+            maxQueue.pollLast();
+        }
+        maxQueue.offerLast(num);
+    }
+
+    private void pop() {
+        int num = numQueue.poll();
+        if (!maxQueue.isEmpty() && maxQueue.peekFirst() == num) maxQueue.pollFirst();
+    }
+}
+```
+
+## [281. 锯齿迭代器](https://leetcode-cn.com/problems/zigzag-iterator/)
+
+```java
+public class ZigzagIterator {
+
+    private Queue<Integer> queue1;
+    private Queue<Integer> queue2;
+    int current = 1;
+
+    public ZigzagIterator(List<Integer> v1, List<Integer> v2) {
+        queue1 = new LinkedList<>(v1);
+        queue2 = new LinkedList<>(v2);
+    }
+
+    public int next() {
+        if (current == 1) {
+            if (queue1.isEmpty()) {
+                return queue2.isEmpty() ? -1 : queue2.poll();
+            } else {
+                current = 2;
+                return queue1.poll();
+            }
+        } else {
+            if (queue2.isEmpty()) {
+                return queue1.isEmpty() ? -1 : queue1.poll();
+            } else {
+                current = 1;
+                return queue2.poll();
+            }
+        }
+    }
+
+    public boolean hasNext() {
+        return !queue1.isEmpty() || !queue2.isEmpty();
+    }
+}
+```
+
 ## [341. 扁平化嵌套列表迭代器](https://leetcode-cn.com/problems/flatten-nested-list-iterator/)
 
 ```java
@@ -164,6 +241,31 @@ public class NestedIterator implements Iterator<Integer> {
     @Override
     public boolean hasNext() {
         return list.size() > 0;
+    }
+}
+```
+
+## [346. 数据流中的移动平均值](https://leetcode-cn.com/problems/moving-average-from-data-stream/)
+
+```java
+class MovingAverage {
+
+    private Queue<Integer> queue;
+    private int size, sum;
+
+    public MovingAverage(int size) {
+        queue = new LinkedList<>();
+        this.size = size;
+        sum = 0;
+    }
+
+    public double next(int val) {
+        sum += val;
+        queue.offer(val);
+        if (queue.size() > size) {
+            sum -= queue.poll();
+        }
+        return sum * 1.0 / queue.size();
     }
 }
 ```
@@ -846,6 +948,223 @@ class Solution {
             }
         }
         return count;
+    }
+}
+```
+
+## [剑指 Offer 09. 用两个栈实现队列](https://leetcode-cn.com/problems/yong-liang-ge-zhan-shi-xian-dui-lie-lcof/)
+
+```java
+class CQueue {
+
+    private Stack<Integer> in;
+    private Stack<Integer> out;
+
+    public CQueue() {
+        in = new Stack<>();
+        out = new Stack<>();
+    }
+
+    public void appendTail(int value) {
+        in.push(value);
+    }
+
+    public int deleteHead() {
+        if (out.isEmpty()) {
+            while (!in.isEmpty()) {
+                out.push(in.pop());
+            }
+        }
+        return out.isEmpty() ? -1 : out.pop();
+    }
+}
+```
+
+## [剑指 Offer 50. 第一个只出现一次的字符](https://leetcode-cn.com/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
+
+```java
+class Solution {
+    public char firstUniqChar(String s) {
+        char[] chars = s.toCharArray();
+        Map<Character, Integer> map = new HashMap<>();
+        for (char c : chars) {
+            map.put(c, map.getOrDefault(c, 0) + 1);
+        }
+        for (char c : chars) {
+            if (map.get(c) == 1) return c;
+        }
+        return ' ';
+    }
+}
+```
+
+## [剑指 Offer 59 - I. 滑动窗口的最大值](https://leetcode-cn.com/problems/hua-dong-chuang-kou-de-zui-da-zhi-lcof/)
+
+```java
+class Solution {
+    private Queue<Integer> numQueue;
+    private Deque<Integer> maxQueue;
+
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0) return new int[0];
+        int length = nums.length - k + 1;
+        int[] ans = new int[length];
+        numQueue = new LinkedList<>();
+        maxQueue = new LinkedList<>();
+        for (int i = 0; i < k; i++) {
+            offer(nums[i]);
+        }
+        ans[0] = maxQueue.peekFirst();
+        for (int i = 0; i < length - 1; i++) {
+            offer(nums[i + k]);
+            pop();
+            ans[i + 1] = maxQueue.peekFirst();
+        }
+        return ans;
+    }
+
+    private void offer(int num) {
+        numQueue.offer(num);
+        while (!maxQueue.isEmpty() && maxQueue.peekLast() < num) {
+            maxQueue.pollLast();
+        }
+        maxQueue.offerLast(num);
+    }
+
+    private void pop() {
+        int num = numQueue.poll();
+        if (!maxQueue.isEmpty() && maxQueue.peekFirst() == num) maxQueue.pollFirst();
+    }
+}
+```
+
+## [剑指 Offer 59 - II. 队列的最大值](https://leetcode-cn.com/problems/dui-lie-de-zui-da-zhi-lcof/)
+
+```java
+class MaxQueue {
+    private Deque<Integer> numQueue, maxQueue;
+
+    public MaxQueue() {
+        numQueue = new LinkedList<>();
+        maxQueue = new LinkedList<>();
+    }
+
+    public int max_value() {
+        return maxQueue.isEmpty() ? -1 : maxQueue.peekFirst();
+    }
+
+    public void push_back(int value) {
+        numQueue.offerLast(value);
+        while (!maxQueue.isEmpty() && maxQueue.peekLast() < value) {
+            maxQueue.pollLast();
+        }
+        maxQueue.offerLast(value);
+    }
+
+    public int pop_front() {
+        int ans = numQueue.isEmpty() ? -1 : numQueue.pollFirst();
+        if (!maxQueue.isEmpty() && maxQueue.peekFirst() == ans) maxQueue.pollFirst();
+        return ans;
+    }
+}
+```
+
+## [剑指 Offer II 041. 滑动窗口的平均值](https://leetcode-cn.com/problems/qIsx9U/)
+
+```java
+class MovingAverage {
+
+    private Queue<Integer> queue;
+    private int size, sum;
+
+    /**
+     * Initialize your data structure here.
+     */
+    public MovingAverage(int size) {
+        queue = new LinkedList<>();
+        this.size = size;
+    }
+
+    public double next(int val) {
+        sum += val;
+        queue.offer(val);
+        if (queue.size() > size) sum -= queue.poll();
+        return sum * 1.0 / queue.size();
+    }
+}
+```
+
+## [剑指 Offer II 042. 最近请求次数](https://leetcode-cn.com/problems/H8086Q/)
+
+```java
+class RecentCounter {
+    private Queue<Integer> queue;
+    public RecentCounter() {
+        queue = new LinkedList<>();
+    }
+
+    public int ping(int t) {
+        queue.offer(t);
+        while (t - queue.peek() > 3000) queue.poll();
+        return queue.size();
+    }
+}
+```
+
+## [面试题 03.06. 动物收容所](https://leetcode-cn.com/problems/animal-shelter-lcci/)
+
+```java
+class AnimalShelf {
+
+    private Queue<Integer> cat, dog;
+
+    public AnimalShelf() {
+        cat = new LinkedList<>();
+        dog = new LinkedList<>();
+    }
+
+    public void enqueue(int[] animal) {
+        if (animal[1] == 0) cat.offer(animal[0]);
+        else dog.offer(animal[0]);
+    }
+
+    public int[] dequeueAny() {
+        int[] ans = new int[]{-1, -1};
+        if (cat.isEmpty() && dog.isEmpty()) return ans;
+        if (cat.isEmpty()) {
+            ans[0] = dog.poll();
+            ans[1] = 1;
+            return ans;
+        }
+        if (dog.isEmpty()) {
+            ans[0] = cat.poll();
+            ans[1] = 0;
+            return ans;
+        }
+        if (dog.peek() < cat.peek()) {
+            ans[0] = dog.poll();
+            ans[1] = 1;
+        } else {
+            ans[0] = cat.poll();
+            ans[1] = 0;
+        }
+        return ans;
+    }
+
+    public int[] dequeueDog() {
+        int[] ans = new int[]{-1, -1};
+        if (dog.isEmpty()) return ans;
+        ans[0] = dog.poll();
+        ans[1] = 1;
+        return ans;
+    }
+
+    public int[] dequeueCat() {
+        int[] ans = new int[]{-1, -1};
+        if (cat.isEmpty()) return ans;
+        ans[0] = cat.poll();
+        ans[1] = 0;
+        return ans;
     }
 }
 ```

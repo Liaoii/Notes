@@ -28,6 +28,28 @@ class Solution {
 }
 ```
 
+使用选择排序实现：
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        int max;
+        for (int i = 0; i < k; i++) {
+            max = i;
+            for (int j = i + 1; j < nums.length; j++) {
+                if (nums[j] > nums[max]) max = j;
+            }
+            if (max != i) {
+                int temp = nums[i];
+                nums[i] = nums[max];
+                nums[max] = temp;
+            }
+        }
+        return nums[k - 1];
+    }
+}
+```
+
 ## [264. 丑数 II](https://leetcode-cn.com/problems/ugly-number-ii/)
 
 ```java

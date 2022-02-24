@@ -1506,6 +1506,157 @@ class Solution {
 }
 ```
 
+## [355. 设计推特](https://leetcode-cn.com/problems/design-twitter/)
+
+```java
+class Twitter {
+
+    class Tweet {
+        int tweetId;
+        int timestamp;
+        Tweet next;
+
+        Tweet(int tweetId, int timestamp) {
+            this.tweetId = tweetId;
+            this.timestamp = timestamp;
+        }
+    }
+
+    private HashMap<Integer, Tweet> postRelations;
+    private HashMap<Integer, HashSet<Integer>> follows;
+    private int timestamp = 0;
+    private PriorityQueue<Tweet> pq;
+
+    public Twitter() {
+        postRelations = new HashMap<>();
+        follows = new HashMap<>();
+        pq = new PriorityQueue<>((o1, o2) -> o2.timestamp - o1.timestamp);
+    }
+
+    public void postTweet(int userId, int tweetId) {
+        timestamp++;
+        Tweet tweet = postRelations.get(userId);
+        if (tweet == null) {
+            tweet = new Tweet(tweetId, timestamp);
+        } else {
+            Tweet temp = new Tweet(tweetId, timestamp);
+            temp.next = tweet;
+            tweet = temp;
+        }
+        postRelations.put(userId, tweet);
+    }
+
+    public List<Integer> getNewsFeed(int userId) {
+        List<Integer> ans = new ArrayList<>();
+        pq.clear();
+        Tweet tweet = postRelations.get(userId);
+        if (tweet != null) pq.offer(tweet);
+        HashSet<Integer> fs = follows.get(userId);
+        if (fs != null) {
+            for (Integer i : fs) {
+                Tweet t = postRelations.get(i);
+                if (t != null) pq.offer(t);
+            }
+        }
+        int count = 0;
+        while (!pq.isEmpty() && count < 10) {
+            Tweet t = pq.poll();
+            ans.add(t.tweetId);
+            if (t.next != null) pq.offer(t.next);
+            count++;
+        }
+        return ans;
+    }
+
+    public void follow(int followerId, int followeeId) {
+        if (followerId == followeeId) return;
+        HashSet<Integer> fs = follows.get(followerId);
+        if (fs == null) fs = new HashSet<>();
+        fs.add(followeeId);
+        follows.put(followerId, fs);
+    }
+
+    public void unfollow(int followerId, int followeeId) {
+        if (followerId == followeeId) return;
+        HashSet<Integer> fs = follows.get(followerId);
+        if (fs != null) fs.remove(followeeId);
+    }
+}
+```
+
+## [369. 给单链表加一](https://leetcode-cn.com/problems/plus-one-linked-list/)
+
+进行两次翻转：
+
+```java
+class Solution {
+    public ListNode plusOne(ListNode head) {
+        if (head == null) return null;
+        head = reverse(head);
+        head.val += 1;
+        int carry = 0;
+        ListNode h = head;
+        while (true) {
+            int val = (h.val + carry) % 10;
+            carry = (h.val + carry) / 10;
+            h.val = val;
+            if (h.next != null) {
+                h = h.next;
+            } else {
+                break;
+            }
+        }
+        if (carry == 1) {
+            h.next = new ListNode(1);
+        }
+        return reverse(head);
+    }
+
+    public ListNode reverse(ListNode head) {
+        ListNode ans = null;
+        while (head != null) {
+            ListNode ne = head.next;
+            head.next = ans;
+            ans = head;
+            head = ne;
+        }
+        return ans;
+    }
+}
+```
+
+## [379. 电话目录管理系统](https://leetcode-cn.com/problems/design-phone-directory/)
+
+```java
+class PhoneDirectory {
+
+    private boolean[] data;
+
+    public PhoneDirectory(int maxNumbers) {
+        data = new boolean[maxNumbers];
+        Arrays.fill(data, true);
+    }
+
+    public int get() {
+        for (int i = 0; i < data.length; i++) {
+            if(data[i]) {
+                data[i] = false;
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean check(int number) {
+        return data[number];
+    }
+
+    public void release(int number) {
+        data[number] = true;
+    }
+}
+```
+
 ## [382. 链表随机节点](https://leetcode-cn.com/problems/linked-list-random-node/)
 
 ```java
@@ -1567,6 +1718,126 @@ class Solution {
 }
 ```
 
+## [432. 全 O(1) 的数据结构](https://leetcode-cn.com/problems/all-oone-data-structure/)
+
+```java
+class AllOne {
+
+    class Node {
+        int val;
+        Set<String> keys;
+        Node prev, next;
+
+        Node(int val) {
+            this.val = val;
+            keys = new HashSet<>();
+        }
+    }
+
+    private HashMap<String, Integer> countMap;
+    private HashMap<Integer, Node> nodeMap;
+    private Node prev, tail;
+
+    public AllOne() {
+        countMap = new HashMap<>();
+        nodeMap = new HashMap<>();
+        prev = new Node(0);
+        tail = new Node(0);
+        prev.next = tail;
+        tail.prev = prev;
+    }
+
+    public void inc(String key) {
+        if (countMap.containsKey(key)) {
+            int count = countMap.get(key);
+            countMap.put(key, count + 1);
+            Node preNode = nodeMap.get(count);
+            preNode.keys.remove(key);
+            Node nextNode = preNode.next;
+            if (nextNode == tail || nextNode.val > count + 1) {
+                Node newNode = new Node(count + 1);
+                newNode.keys.add(key);
+                newNode.next = nextNode;
+                newNode.prev = preNode;
+                preNode.next = newNode;
+                nextNode.prev = newNode;
+                nodeMap.put(count + 1, newNode);
+            } else {
+                nextNode.keys.add(key);
+            }
+            if (preNode.keys.size() == 0) {
+                preNode.prev.next = preNode.next;
+                preNode.next.prev = preNode.prev;
+                nodeMap.remove(count);
+            }
+        } else {
+            countMap.put(key, 1);
+            Node temp = nodeMap.get(1);
+            if (temp == null) {
+                temp = new Node(1);
+                temp.keys.add(key);
+                temp.next = prev.next;
+                temp.prev = prev;
+                prev.next.prev = temp;
+                prev.next = temp;
+                nodeMap.put(1, temp);
+            } else {
+                temp.keys.add(key);
+            }
+        }
+    }
+
+    public void dec(String key) {
+        int count = countMap.get(key);
+        Node nextNode = nodeMap.get(count);
+        nextNode.keys.remove(key);
+        if (count == 1) {
+            countMap.remove(key);
+        } else {
+            countMap.put(key, count - 1);
+            Node prevNode = nextNode.prev;
+            if (prevNode == prev || prevNode.val < count - 1) {
+                Node newNode = new Node(count - 1);
+                newNode.keys.add(key);
+                newNode.prev = prevNode;
+                newNode.next = nextNode;
+                prevNode.next = newNode;
+                nextNode.prev = newNode;
+                nodeMap.put(count - 1, newNode);
+            } else {
+                prevNode.keys.add(key);
+            }
+        }
+        if (nextNode.keys.size() == 0) {
+            nextNode.prev.next = nextNode.next;
+            nextNode.next.prev = nextNode.prev;
+            nodeMap.remove(count);
+        }
+    }
+
+    public String getMaxKey() {
+        Node p = tail.prev;
+        if (p == prev) return "";
+        else return p.keys.iterator().next();
+    }
+
+    public String getMinKey() {
+        Node p = prev.next;
+        if (p == tail) return "";
+        else return p.keys.iterator().next();
+    }
+
+    public static void main(String[] args) {
+        AllOne allOne = new AllOne();
+        allOne.inc("hello");
+        allOne.inc("hello");
+        allOne.inc("Leet");
+        allOne.getMaxKey();
+        allOne.getMinKey();
+    }
+}
+```
+
 ## [445. 两数相加 II](https://leetcode-cn.com/problems/add-two-numbers-ii/)
 
 先翻转两个链表，再进行求解：
@@ -1610,7 +1881,99 @@ class Solution {
 }
 ```
 
+## [460. LFU 缓存](https://leetcode-cn.com/problems/lfu-cache/)
+
+```java
+class LFUCache {
+
+    class Node {
+        int key;
+        int value;
+        int frequency;
+        Node prev;
+        Node next;
+
+        Node(int key, int value, int frequency) {
+            this.key = key;
+            this.value = value;
+            this.frequency = frequency;
+        }
+    }
+
+    private HashMap<Integer, Node> nodeMap;
+    private HashMap<Integer, LinkedList<Node>> freqMap;
+    int minFreq;
+    int capacity;
+
+    public LFUCache(int capacity) {
+        nodeMap = new HashMap<>();
+        freqMap = new HashMap<>();
+        minFreq = 0;
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        if (capacity == 0) return -1;
+        if (nodeMap.containsKey(key)) {
+            Node node = nodeMap.get(key);
+            int frequency = node.frequency;
+            node.frequency = frequency + 1;
+            LinkedList<Node> nodes = freqMap.get(frequency);
+            nodes.remove(node);
+            if (nodes.size() == 0) {
+                freqMap.remove(frequency);
+                if (minFreq == frequency) minFreq++;
+            }
+            LinkedList<Node> nodePlus = freqMap.get(frequency + 1);
+            if (nodePlus == null) nodePlus = new LinkedList<>();
+            nodePlus.offerFirst(node);
+            freqMap.put(frequency + 1, nodePlus);
+            nodeMap.put(key, node);
+            return node.value;
+        } else {
+            return -1;
+        }
+    }
+
+    public void put(int key, int value) {
+        if (capacity == 0) return;
+        if (nodeMap.containsKey(key)) {
+            Node node = nodeMap.get(key);
+            int frequency = node.frequency;
+            node.frequency = frequency + 1;
+            node.value = value;
+            LinkedList<Node> nodes = freqMap.get(frequency);
+            nodes.remove(node);
+            if (nodes.size() == 0) {
+                freqMap.remove(frequency);
+                if (minFreq == frequency) minFreq++;
+            }
+            LinkedList<Node> nodePlus = freqMap.get(frequency + 1);
+            if (nodePlus == null) nodePlus = new LinkedList<>();
+            nodePlus.offerFirst(node);
+            freqMap.put(frequency + 1, nodePlus);
+            nodeMap.put(key, node);
+        } else {
+            if (nodeMap.size() == capacity) {
+                Node minNode = freqMap.get(minFreq).pollLast();
+                nodeMap.remove(minNode.key);
+                if (freqMap.get(minFreq).size() == 0) freqMap.remove(minFreq);
+            }
+            LinkedList<Node> nodes = freqMap.get(1);
+            if (nodes == null) nodes = new LinkedList<>();
+            Node node = new Node(key, value, 1);
+            nodes.offerFirst(node);
+            freqMap.put(1, nodes);
+            nodeMap.put(key, node);
+            minFreq = 1;
+        }
+    }
+}
+```
+
 ## [705. 设计哈希集合](https://leetcode-cn.com/problems/design-hashset/)
+
+使用数组实现：
 
 ```java
 class MyHashSet {
@@ -1632,6 +1995,88 @@ class MyHashSet {
     }
 }
 ```
+
+使用简易Hash实现：
+
+```java
+class MyHashSet {
+
+    private static final int CAPACITY = 769;
+    private LinkedList<Integer>[] data;
+
+    public MyHashSet() {
+        data = new LinkedList[CAPACITY];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = new LinkedList<>();
+        }
+    }
+
+    public void add(int key) {
+        int hash = hash(key);
+        LinkedList<Integer> list = data[hash];
+        for (Integer next : list) {
+            if (next == key) return;
+        }
+        list.offerLast(key);
+    }
+
+    public void remove(int key) {
+        int hash = hash(key);
+        LinkedList<Integer> list = data[hash];
+        for (Integer next : list) {
+            if (next == key) {
+                list.remove(next);
+                return;
+            }
+        }
+    }
+
+    public boolean contains(int key) {
+        int hash = hash(key);
+        LinkedList<Integer> list = data[hash];
+        for (Integer next : list) {
+            if (next == key) return true;
+        }
+        return false;
+    }
+
+    private int hash(int val) {
+        return val % CAPACITY;
+    }
+}
+```
+
+## [706. 设计哈希映射](https://leetcode-cn.com/problems/design-hashmap/)
+
+使用数组实现：
+
+```java
+class MyHashMap {
+
+    private int[] datas;
+
+    public MyHashMap() {
+        datas = new int[1000001];
+        for (int i = 0; i < datas.length; i++) {
+            datas[i] = -1;
+        }
+    }
+
+    public void put(int key, int value) {
+        datas[key] = value;
+    }
+
+    public int get(int key) {
+        return datas[key];
+    }
+
+    public void remove(int key) {
+        datas[key] = -1;
+    }
+}
+```
+
+
 
 ## [725. 分隔链表](https://leetcode-cn.com/problems/split-linked-list-in-parts/)
 
@@ -1663,6 +2108,23 @@ class Solution {
 }
 ```
 
+## [817. 链表组件](https://leetcode-cn.com/problems/linked-list-components/)
+
+```java
+class Solution {
+    public int numComponents(ListNode head, int[] nums) {
+        Set<Integer> children = new HashSet<>();
+        for (int i : nums) children.add(i);
+        int ans = 0;
+        while (head != null) {
+            if (children.contains(head.val) && (head.next == null || !children.contains(head.next.val))) ans++;
+            head = head.next;
+        }
+        return ans;
+    }
+}
+```
+
 ## [876. 链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
 
 ```java
@@ -1677,6 +2139,41 @@ class Solution {
         int mid = length / 2 + 1;
         while (--mid > 0) p = p.next;
         return p;
+    }
+}
+```
+
+## [1019. 链表中的下一个更大节点](https://leetcode-cn.com/problems/next-greater-node-in-linked-list/)
+
+暴力解法：
+
+```java
+class Solution {
+    public int[] nextLargerNodes(ListNode head) {
+        int length = 0;
+        ListNode p = head;
+        while (p != null) {
+            length++;
+            p = p.next;
+        }
+        int[] ans = new int[length];
+        p = head;
+        for (int i = 0; i < length; i++) {
+            int cur = p.val;
+            int big = 0;
+            ListNode temp = p.next;
+            while (temp != null) {
+                if (temp.val > cur) {
+                    big = temp.val;
+                    break;
+                } else {
+                    temp = temp.next;
+                }
+            }
+            ans[i] = big;
+            p = p.next;
+        }
+        return ans;
     }
 }
 ```
