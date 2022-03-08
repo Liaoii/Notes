@@ -914,6 +914,33 @@ class MaxStack {
 }
 ```
 
+## [739. 每日温度](https://leetcode-cn.com/problems/daily-temperatures/)
+
+暴力解法：
+
+```java
+class Solution {
+    public int[] dailyTemperatures(int[] temperatures) {
+        int[] ans = new int[temperatures.length];
+        for (int i = 0; i < temperatures.length; i++) {
+            int a = 0;
+            for (int j = i + 1; j < temperatures.length; j++) {
+                if (temperatures[j] > temperatures[i]) {
+                    a = j - i;
+                    break;
+                }
+            }
+            ans[i] = a;
+        }
+        return ans;
+    }
+}
+```
+
+
+
+
+
 ## [844. 比较含退格的字符串](https://leetcode-cn.com/problems/backspace-string-compare/)
 
 ```java
@@ -1143,6 +1170,41 @@ class Solution {
 }
 ```
 
+## [1381. 设计一个支持增量操作的栈](https://leetcode-cn.com/problems/design-a-stack-with-increment-operation/)
+
+```java
+class CustomStack {
+
+    private int maxSize, size;
+    private Stack<Integer> stack;
+
+    public CustomStack(int maxSize) {
+        stack = new Stack<>();
+        this.maxSize = maxSize;
+    }
+
+    public void push(int x) {
+        if (size == maxSize) return;
+        stack.push(x);
+        size++;
+    }
+
+    public int pop() {
+        if (stack.empty()) return -1;
+        int ans = stack.pop();
+        size--;
+        return ans;
+    }
+
+    public void increment(int k, int val) {
+        Stack<Integer> temp = new Stack<>();
+        while (!stack.empty()) temp.push(stack.pop());
+        while (!temp.empty() && k-- > 0) stack.push(temp.pop() + val);
+        while (!temp.empty()) stack.push(temp.pop());
+    }
+}
+```
+
 ## [1441. 用栈操作构建数组](https://leetcode-cn.com/problems/build-an-array-with-stack-operations/)
 
 ```java
@@ -1346,6 +1408,51 @@ class MinStack {
 }
 ```
 
+## [剑指 Offer 31. 栈的压入、弹出序列](https://leetcode-cn.com/problems/zhan-de-ya-ru-dan-chu-xu-lie-lcof/)
+
+```java
+class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0, j = 0; i < popped.length; i++) {
+            while (j < pushed.length && (stack.isEmpty() || stack.peek() != popped[i])) {
+                stack.push(pushed[j]);
+                j++;
+            }
+            if (stack.pop() != popped[i]) return false;
+        }
+        return true;
+    }
+}
+```
+
+## [剑指 Offer II 038. 每日温度](https://leetcode-cn.com/problems/iIQa4I/)
+
+暴力解法：
+
+```java
+class Solution {
+    public int[] dailyTemperatures(int[] temperatures) {
+        int[] ans = new int[temperatures.length];
+        for (int i = 0; i < temperatures.length; i++) {
+            int a = 0;
+            for (int j = i + 1; j < temperatures.length; j++) {
+                if (temperatures[j] > temperatures[i]) {
+                    a = j - i;
+                    break;
+                }
+            }
+            ans[i] = a;
+        }
+        return ans;
+    }
+}
+```
+
+
+
+
+
 ## [剑指 Offer II 052. 展平二叉搜索树](https://leetcode-cn.com/problems/NYBBNL/)
 
 ```java
@@ -1367,6 +1474,35 @@ class Solution {
         getChild(root.left, list);
         list.add(root);
         getChild(root.right, list);
+    }
+}
+```
+
+## [剑指 Offer II 055. 二叉搜索树迭代器](https://leetcode-cn.com/problems/kTOapQ/)
+
+```java
+class BSTIterator {
+    private List<TreeNode> list;
+    private int index;
+
+    public BSTIterator(TreeNode root) {
+        list = new ArrayList<>();
+        getChild(root, list);
+    }
+
+    private void getChild(TreeNode root, List<TreeNode> list) {
+        if (root == null) return;
+        getChild(root.left, list);
+        list.add(root);
+        getChild(root.right, list);
+    }
+
+    public int next() {
+        return list.get(index++).val;
+    }
+
+    public boolean hasNext() {
+        return index < list.size();
     }
 }
 ```
