@@ -226,6 +226,31 @@ class QuickSort {
 }
 ```
 
+**简介版快速排序：**
+
+```java
+class QuickSort {
+
+    public static void quickSort(int[] arr) {
+        quickSort(arr, 0, arr.length - 1);
+    }
+
+    private void quickSort(int[] nums, int start, int end) {
+        if (start >= end) return;
+        int left = start, right = end, base = nums[start];
+        while (left < right) {
+            while (left < right && nums[right] >= base) right--;
+            if (left < right) nums[left++] = nums[right];
+            while (left < right && nums[left] < base) left++;
+            if (left < right) nums[right--] = nums[left];
+        }
+        nums[left] = base;
+        quickSort(nums, start, left - 1);
+        quickSort(nums, left + 1, end);
+    }
+}
+```
+
 ## 5.归并排序
 
 使用临时空间进行归并排序：
@@ -357,7 +382,7 @@ public class MergeSort {
 }
 ```
 
-简洁的归并排序：
+**简洁的归并排序：**
 
 ```java
 public class MergeSort {
