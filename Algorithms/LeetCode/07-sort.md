@@ -191,3 +191,298 @@ class Solution {
     }
 }
 ```
+
+#### [242. 有效的字母异位词](https://leetcode-cn.com/problems/valid-anagram/)
+
+使用哈希表进行计数：
+
+```java
+class Solution {
+    public boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) return false;
+        Map<Character, Integer> map = new HashMap<>();
+        char[] chars = s.toCharArray();
+        for (char c : chars) {
+            map.put(c, map.getOrDefault(c, 0) + 1);
+        }
+        chars = t.toCharArray();
+        for (char c : chars) {
+            int count = map.getOrDefault(c, 0) - 1;
+            if (count < 0) return false;
+            map.put(c, count);
+        }
+        return true;
+    }
+}
+```
+
+先将两个字符串进行快速排序，然后逐个进行比较：
+
+```java
+class Solution {
+    public boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) return false;
+        char[] sChars = s.toCharArray();
+        quickSort(sChars, 0, sChars.length - 1);
+        char[] tChars = t.toCharArray();
+        quickSort(tChars, 0, tChars.length - 1);
+        for (int i = 0; i < sChars.length; i++) {
+            if (sChars[i] != tChars[i]) return false;
+        }
+        return true;
+    }
+
+    private void quickSort(char[] chars, int start, int end) {
+        if (start >= end) return;
+        int left = start, right = end;
+        char base = chars[left];
+        while (left < right) {
+            while (left < right && chars[right] >= base) right--;
+            if (left < right) chars[left++] = chars[right];
+            while (left < right && chars[left] < base) left++;
+            if (left < right) chars[right--] = chars[left];
+        }
+        chars[left] = base;
+        quickSort(chars, start, left - 1);
+        quickSort(chars, left + 1, end);
+    }
+}
+```
+
+#### [252. 会议室](https://leetcode-cn.com/problems/meeting-rooms/)
+
+先对数组进行归并排序，然后在遍历一次进行判断：
+
+```java
+class Solution {
+    public boolean canAttendMeetings(int[][] intervals) {
+        if (intervals.length == 0) return true;
+        mergeSort(intervals, 0, intervals.length - 1);
+        for (int i = 1; i < intervals.length; i++) {
+            if (intervals[i - 1][1] > intervals[i][0]) return false;
+        }
+        return true;
+    }
+
+    private void mergeSort(int[][] arr, int start, int end) {
+        if (start >= end) return;
+        int middle = (start + end) >> 1;
+        mergeSort(arr, start, middle);
+        mergeSort(arr, middle + 1, end);
+        int s1 = start, s2 = middle + 1, tempIndex = 0;
+        int[][] temp = new int[end - start + 1][];
+        while (s1 <= middle || s2 <= end) {
+            if (s2 > end || (s1 <= middle && arr[s1][0] <= arr[s2][0])) {
+                temp[tempIndex++] = arr[s1++];
+            } else {
+                temp[tempIndex++] = arr[s2++];
+            }
+        }
+        for (int i = start; i <= end; i++) arr[i] = temp[i - start];
+    }
+}
+```
+
+#### [268. 丢失的数字](https://leetcode-cn.com/problems/missing-number/)
+
+使用快速排序进行排序：
+
+```java
+class Solution {
+    public int missingNumber(int[] nums) {
+        quickSort(nums, 0, nums.length - 1);
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != i) return i;
+        }
+        return nums.length;
+    }
+
+    private void quickSort(int[] arr, int start, int end) {
+        if (start >= end) return;
+        int left = start, right = end, base = arr[left];
+        while (left < right) {
+            while (left < right && arr[right] >= base) right--;
+            if (left < right) arr[left++] = arr[right];
+            while (left < right && arr[left] < base) left++;
+            if (left < right) arr[right--] = arr[left];
+        }
+        arr[left] = base;
+        quickSort(arr, start, left - 1);
+        quickSort(arr, left + 1, end);
+    }
+}
+```
+
+使用哈希表进行求解：
+
+```java
+class Solution {
+    public int missingNumber(int[] nums) {
+        Set<Integer> set = new HashSet<>();
+        for (int num : nums) {
+            set.add(num);
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (!set.contains(i)) return i;
+        }
+        return nums.length;
+    }
+}
+```
+
+#### [349. 两个数组的交集](https://leetcode-cn.com/problems/intersection-of-two-arrays/)
+
+使用哈希表进行求解：
+
+```java
+class Solution {
+    public int[] intersection(int[] nums1, int[] nums2) {
+        Set<Integer> set = new HashSet<>();
+        for (int num : nums1) set.add(num);
+        List<Integer> list = new ArrayList<>();
+        for (int num : nums2) {
+            if (set.contains(num)) {
+                list.add(num);
+                set.remove(num);
+            }
+        }
+        int[] ans = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) ans[i] = list.get(i);
+        return ans;
+    }
+}
+```
+
+使用单边快速排序对两个数组进行排序，然后使用双指针进行判断：
+
+```java
+class Solution {
+    public int[] intersection(int[] nums1, int[] nums2) {
+        quickSort(nums1, 0, nums1.length - 1);
+        quickSort(nums2, 0, nums2.length - 1);
+        int[] ans = new int[nums1.length + nums2.length];
+        int index = 0, index1 = 0, index2 = 0;
+        while (index1 < nums1.length && index2 < nums2.length) {
+            int num1 = nums1[index1], num2 = nums2[index2];
+            if (num1 == num2) {
+                if (index == 0 || num1 != ans[index - 1]) ans[index++] = num1;
+                index1++;
+                index2++;
+            } else if (num1 < num2) {
+                index1++;
+            } else {
+                index2++;
+            }
+        }
+        return Arrays.copyOfRange(ans, 0, index);
+    }
+
+    private void quickSort(int[] arr, int start, int end) {
+        if (start >= end) return;
+        int middle = partition(arr, start, end);
+        quickSort(arr, start, middle - 1);
+        quickSort(arr, middle + 1, end);
+    }
+
+    private int partition(int[] arr, int start, int end) {
+        int pivot = arr[start];
+        int left = start + 1, right = end;
+        while (left < right) {
+            while (left < right && arr[left] <= pivot) left++;
+            if (left != right) {
+                int temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+                right--;
+            }
+        }
+        if (left == right && arr[right] > pivot) right--;
+        if (right != start) {
+            int temp = arr[start];
+            arr[start] = arr[right];
+            arr[right] = temp;
+        }
+        return right;
+    }
+}
+```
+
+#### [350. 两个数组的交集 II](https://leetcode-cn.com/problems/intersection-of-two-arrays-ii/)
+
+使用哈希表进行计数：
+
+```
+class Solution {
+    public int[] intersect(int[] nums1, int[] nums2) {
+        Map<Integer, Integer> map = new HashMap<>();
+        List<Integer> list = new ArrayList<>();
+        for (int num : nums1) map.put(num, map.getOrDefault(num, 0) + 1);
+        for (int num : nums2) {
+            int count = map.getOrDefault(num, 0);
+            if (count > 0) list.add(num);
+            map.put(num, count - 1);
+        }
+        int[] ans = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            ans[i] = list.get(i);
+        }
+        return ans;
+    }
+}
+```
+
+先对两个数组进行排序，然后再使用双指针进行处理：
+
+```java
+class Solution {
+    public int[] intersect(int[] nums1, int[] nums2) {
+        quickSort(nums1, 0, nums1.length - 1);
+        quickSort(nums2, 0, nums2.length - 1);
+        int[] ans = new int[nums1.length + nums2.length];
+        int index = 0, index1 = 0, index2 = 0;
+        while (index1 < nums1.length && index2 < nums2.length) {
+            int num1 = nums1[index1], num2 = nums2[index2];
+            if (num1 == num2) {
+                ans[index++] = num1;
+                index1++;
+                index2++;
+            } else if (num1 < num2) {
+                index1++;
+            } else {
+                index2++;
+            }
+        }
+        return Arrays.copyOfRange(ans, 0, index);
+    }
+
+    private void quickSort(int[] arr, int start, int end) {
+        if (start >= end) return;
+        int middle = partition(arr, start, end);
+        quickSort(arr, start, middle - 1);
+        quickSort(arr, middle + 1, end);
+    }
+
+    private int partition(int[] arr, int start, int end) {
+        int pivot = arr[start];
+        int left = start + 1, right = end;
+        while (left < right) {
+            while (left < right && arr[left] <= pivot) left++;
+            while (left < right && arr[right] > pivot) right--;
+            if (left != right) {
+                int temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+                left++;
+                right--;
+            }
+        }
+        if (left == right && arr[right] > pivot) right--;
+        if (right != start) {
+            int temp = arr[start];
+            arr[start] = arr[right];
+            arr[right] = temp;
+        }
+        return right;
+    }
+}
+```
