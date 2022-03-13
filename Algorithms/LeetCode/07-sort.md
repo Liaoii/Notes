@@ -486,3 +486,152 @@ class Solution {
     }
 }
 ```
+
+#### [389. 找不同](https://leetcode-cn.com/problems/find-the-difference/)
+
+先进行排序，然后在进行求解：
+
+```java
+class Solution {
+    public char findTheDifference(String s, String t) {
+        char[] sChars = s.toCharArray();
+        char[] tChars = t.toCharArray();
+        quickSort(sChars, 0, sChars.length - 1);
+        quickSort(tChars, 0, tChars.length - 1);
+        for (int i = 0; i < sChars.length; i++) {
+            if (tChars[i] != sChars[i]) return tChars[i];
+        }
+        return tChars[tChars.length - 1];
+    }
+
+    private void quickSort(char[] arr, int start, int end) {
+        if (start >= end) return;
+        int middle = partition(arr, start, end);
+        quickSort(arr, start, middle - 1);
+        quickSort(arr, middle + 1, end);
+    }
+
+    private int partition(char[] arr, int start, int end) {
+        char pivot = arr[start];
+        int left = start + 1, right = end;
+        while (left < right) {
+            while (left < right && arr[left] <= pivot) left++;
+            if (left != right) {
+                char temp = arr[right];
+                arr[right] = arr[left];
+                arr[left] = temp;
+                right--;
+            }
+        }
+        if (left == right && arr[right] > pivot) right--;
+        if (right != start) {
+            char temp = arr[right];
+            arr[right] = arr[start];
+            arr[start] = temp;
+        }
+        return right;
+    }
+}
+```
+
+使用数组进行计数：
+
+```java
+class Solution {
+    public char findTheDifference(String s, String t) {
+        int[] count = new int[26];
+        for (char c : s.toCharArray()) {
+            count[c - 'a']++;
+        }
+        for (char c : t.toCharArray()) {
+            count[c - 'a']--;
+            if (count[c - 'a'] < 0) return c;
+        }
+        return ' ';
+    }
+}
+```
+
+使用求和的方式进行求解：
+
+```java
+class Solution {
+    public char findTheDifference(String s, String t) {
+        int sum = 0;
+        for (char c : t.toCharArray()) {
+            sum += c;
+        }
+        for (char c : s.toCharArray()) {
+            sum -= c;
+        }
+        return (char) sum;
+    }
+}
+```
+
+#### [414. 第三大的数](https://leetcode-cn.com/problems/third-maximum-number/)
+
+先进行排序：
+
+```java
+class Solution {
+    public int thirdMax(int[] nums) {
+        quickSort(nums, 0, nums.length - 1);
+        int cur = nums[0];
+        int st = 2;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] != cur) {
+                st--;
+                cur = nums[i];
+            }
+            if (st == 0) return nums[i];
+        }
+        return nums[0];
+    }
+
+    private void quickSort(int[] arr, int start, int end) {
+        if (start >= end) return;
+        int middle = partition(arr, start, end);
+        quickSort(arr, start, middle - 1);
+        quickSort(arr, middle + 1, end);
+    }
+
+    private int partition(int[] arr, int start, int end) {
+        int left = start + 1, right = end, base = arr[start];
+        while (left < right) {
+            while (left < right && arr[left] >= base) left++;
+            if (left != right) {
+                int temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+                right--;
+            }
+        }
+        if (left == right && arr[right] < base) right--;
+        if (right != start) {
+            int temp = arr[start];
+            arr[start] = arr[right];
+            arr[right] = temp;
+        }
+        return right;
+    }
+}
+```
+
+使用有序集合进行求解：
+
+```java
+class Solution {
+    public int thirdMax(int[] nums) {
+        TreeSet<Integer> set = new TreeSet<>();
+        for (int num : nums) {
+            set.add(num);
+            if (set.size() > 3) set.pollFirst();
+        }
+        return set.size() == 3 ? set.pollFirst() : set.pollLast();
+    }
+}
+```
+
+#### [455. 分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
+
