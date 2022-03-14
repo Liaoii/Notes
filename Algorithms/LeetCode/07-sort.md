@@ -635,3 +635,85 @@ class Solution {
 
 #### [455. 分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
 
+首先对两个数组进行排序：
+
+```java
+class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        quickSort(g, 0, g.length - 1);
+        System.out.println(Arrays.toString(g));
+        quickSort(s, 0, s.length - 1);
+        int ans = 0;
+        int index1 = 0, index2 = 0;
+        while (index1 < g.length && index2 < s.length) {
+            if (s[index2] >= g[index1]) {
+                ans++;
+                index1++;
+            }
+            index2++;
+        }
+        return ans;
+    }
+
+    private void quickSort(int[] arr, int start, int end) {
+        if (start >= end) return;
+        int middle = partition(arr, start, end);
+        quickSort(arr, start, middle - 1);
+        quickSort(arr, middle + 1, end);
+    }
+
+    private int partition(int[] arr, int start, int end) {
+        int left = start + 1, right = end, base = arr[start];
+        while (left < right) {
+            while (left < right && arr[left] <= base) left++;
+            while (left < right && arr[right] > base) right--;
+            if (left != right) {
+                int temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+                left++;
+                right--;
+            }
+        }
+        if (left == right && arr[right] > base) right--;
+        if (right != start) {
+            int temp = arr[start];
+            arr[start] = arr[right];
+            arr[right] = temp;
+        }
+        return right;
+    }
+}
+```
+
+#### [506. 相对名次](https://leetcode-cn.com/problems/relative-ranks/)
+
+```java
+class Solution {
+    public String[] findRelativeRanks(int[] score) {
+        String[] ans = new String[score.length];
+        int[] copy = score.clone();
+        Arrays.sort(copy);
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < copy.length; i++) {
+            map.put(copy[i], copy.length - i);
+        }
+        for (int i = 0; i < score.length; i++) {
+            int rank = map.get(score[i]);
+            if (rank == 1) {
+                ans[i] = "Gold Medal";
+            } else if (rank == 2) {
+                ans[i] = "Silver Medal";
+            } else if (rank == 3) {
+                ans[i] = "Bronze Medal";
+            } else {
+                ans[i] = rank + "";
+            }
+        }
+        return ans;
+    }
+}
+```
+
+#### [561. 数组拆分 I](https://leetcode-cn.com/problems/array-partition-i/)
+
