@@ -1404,11 +1404,119 @@ class Solution {
 }
 ```
 
+#### [2148. 元素计数](https://leetcode-cn.com/problems/count-elements-with-strictly-smaller-and-greater-elements/)
+
+```java
+class Solution {
+    public int countElements(int[] nums) {
+        Arrays.sort(nums);
+        int minCount = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] == nums[i - 1]) {
+                minCount++;
+            } else {
+                break;
+            }
+        }
+        int maxCount = 1;
+        for (int i = nums.length - 2; i >= 0; i--) {
+            if (nums[i] == nums[i + 1]) {
+                maxCount++;
+            } else {
+                break;
+            }
+        }
+        int ans = nums.length - minCount - maxCount;
+        if (ans < 0) ans = 0;
+        return ans;
+    }
+}
+```
+
+#### [2154. 将找到的值乘以 2](https://leetcode-cn.com/problems/keep-multiplying-found-values-by-two/)
+
+```java
+class Solution {
+    public int findFinalValue(int[] nums, int original) {
+        Arrays.sort(nums);
+        for (int num : nums) {
+            if (num == original) {
+                original = original * 2;
+            }
+        }
+        return original;
+    }
+}
+```
+
+#### [2160. 拆分数位后四位数字的最小和](https://leetcode-cn.com/problems/minimum-sum-of-four-digit-number-after-splitting-digits/)
+
+```java
+class Solution {
+    public int minimumSum(int num) {
+        int[] nums = new int[4];
+        nums[0] = num / 1000;
+        nums[1] = num / 100 % 10;
+        nums[2] = num / 10 % 10;
+        nums[3] = num % 10;
+        Arrays.sort(nums);
+        return nums[0] * 10 + nums[2] + nums[1] * 10 + nums[3];
+    }
+}
+```
+
 #### [2164. 对奇偶下标分别排序](https://leetcode-cn.com/problems/sort-even-and-odd-indices-independently/)
 
+使用两次冒泡排序进行求解：
 
+```java
+class Solution {
+    public int[] sortEvenOdd(int[] nums) {
+        for (int i = 0; i < nums.length - 2; i += 2) {
+            for (int j = 0; j < nums.length - 2 - i; j += 2) {
+                if (nums[j] > nums[j + 2]) {
+                    int temp = nums[j];
+                    nums[j] = nums[j + 2];
+                    nums[j + 2] = temp;
+                }
+            }
+        }
+        for (int i = 1; i < nums.length - 1; i += 2) {
+            for (int j = 1; j < nums.length - 1 - i; j += 2) {
+                if (nums[j] < nums[j + 2]) {
+                    int temp = nums[j];
+                    nums[j] = nums[j + 2];
+                    nums[j + 2] = temp;
+                }
+            }
+        }
+        return nums;
+    }
+}
+```
 
+先拆分成两个数组，分别进行排序后再进行合并：
 
+```java
+class Solution {
+    public int[] sortEvenOdd(int[] nums) {
+        List<Integer> oddList = new ArrayList<>();
+        List<Integer> evenList = new ArrayList<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (i % 2 == 1) {
+                oddList.add(nums[i]);
+            } else {
+                evenList.add(nums[i]);
+            }
+        }
+        Collections.sort(oddList, ((o1, o2) -> o2 - o1));
+        Collections.sort(evenList);
+        for (int i = 0; i < oddList.size(); i++) nums[2 * i + 1] = oddList.get(i);
+        for (int i = 0; i < evenList.size(); i++) nums[2 * i] = evenList.get(i);
+        return nums;
+    }
+}
+```
 
 #### [LCS 02. 完成一半题目](https://leetcode-cn.com/problems/WqXACV/)
 
