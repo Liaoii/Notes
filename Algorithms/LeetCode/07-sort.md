@@ -1404,6 +1404,43 @@ class Solution {
 }
 ```
 
+#### [2099. 找到和最大的长度为 K 的子序列](https://leetcode-cn.com/problems/find-subsequence-of-length-k-with-the-largest-sum/)
+
+```java
+class Solution {
+    public int[] maxSubsequence(int[] nums, int k) {
+        int[][] temp = new int[nums.length][2];
+        for (int i = 0; i < nums.length; i++) {
+            temp[i][0] = i;
+            temp[i][1] = nums[i];
+        }
+        Arrays.sort(temp, ((o1, o2) -> o2[1] - o1[1]));
+        Arrays.sort(temp, 0, k, ((o1, o2) -> o1[0] - o2[0]));
+        int[] ans = new int[k];
+        for (int i = 0; i < k; i++) {
+            ans[i] = temp[i][1];
+        }
+        return ans;
+    }
+}
+```
+
+#### [2144. 打折购买糖果的最小开销](https://leetcode-cn.com/problems/minimum-cost-of-buying-candies-with-discount/)
+
+```java
+class Solution {
+    public int minimumCost(int[] cost) {
+        Arrays.sort(cost);
+        int ans = 0;
+        for (int i = cost.length - 1; i >= 0; i -= 3) {
+            ans += cost[i];
+            if (i - 1 >= 0) ans += cost[i - 1];
+        }
+        return ans;
+    }
+}
+```
+
 #### [2148. 元素计数](https://leetcode-cn.com/problems/count-elements-with-strictly-smaller-and-greater-elements/)
 
 ```java

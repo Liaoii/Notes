@@ -410,3 +410,179 @@ public class MergeSort {
     }
 }
 ```
+
+## 6. 堆排序
+
+```java
+class Deap {
+    private int[] data;
+    private int count;
+
+    public Deap() {
+        data = new int[1000];
+        count = 0;
+    }
+
+    public void push(int x) {
+        data[count++] = x;
+        shift_up(count - 1);
+    }
+
+    public void pop() {
+        if (size() == 0) return;
+        data[0] = data[count - 1];
+        count--;
+        shift_down(0);
+    }
+
+    private void shift_up(int index) {
+        while (index > 0 && data[(index - 1) / 2] < data[index]) {
+            int temp = data[(index - 1) / 2];
+            data[(index - 1) / 2] = data[index];
+            data[index] = temp;
+            index = (index - 1) / 2;
+        }
+    }
+
+    private void shift_down(int index) {
+        int n = count - 1;
+        while (index * 2 + 1 <= n) {
+            int t = index;
+            if (data[t] < data[index * 2 + 1]) t = index * 2 + 1;
+            if (index * 2 + 2 <= n && data[t] < data[index * 2 + 2]) t = index * 2 + 2;
+            if (t == index) break;
+            int temp = data[t];
+            data[t] = data[index];
+            data[index] = temp;
+            index = t;
+        }
+    }
+
+    public int top() {
+        return data[0];
+    }
+
+    public int size() {
+        return count;
+    }
+}
+```
+
+## 7. 计数排序
+
+```java
+public static void countingSort1(int[] arr) {
+    int[] counting = new int[10];
+    for (int element : arr) {
+        counting[element]++;
+    }
+    int index = 0;
+    for (int i = 0; i < 10; i++) {
+        while (counting[i] != 0) {
+            arr[index++] = i;
+            counting[i]--;
+        }
+    }
+}
+
+public static void countingSort2(int[] arr) {
+    int[] counting = new int[10];
+    HashMap<Integer, Queue<Integer>> records = new HashMap<>();
+
+    for (int element : arr) {
+        counting[element]++;
+        if (!records.containsKey(element)) {
+            records.put(element, new LinkedList<>());
+        }
+        records.get(element).offer(element);
+    }
+    int index = 0;
+    for (int i = 0; i < 10; i++) {
+        while (counting[i] != 0) {
+            arr[index++] = records.get(i).poll();
+            counting[i]--;
+        }
+    }
+}
+
+public static void countingSort3(int[] arr) {
+    int[] counting = new int[10];
+
+    for (int element : arr) {
+        counting[element]++;
+    }
+    int preCounts = 0;
+    for (int i = 0; i < counting.length; i++) {
+        int temp = counting[i];
+        counting[i] = preCounts;
+        preCounts += temp;
+    }
+    int[] result = new int[arr.length];
+    for (int element : arr) {
+        int index = counting[element];
+        result[index] = element;
+        counting[element]++;
+    }
+    for (int i = 0; i < arr.length; i++) {
+        arr[i] = result[i];
+    }
+}
+
+public static void countingSort4(int[] arr) {
+    if (arr == null || arr.length <= 1) return;
+    int max = arr[0];
+    int min = arr[0];
+    for (int i = 1; i < arr.length; i++) {
+        if (arr[i] > max) max = arr[i];
+        else if (arr[i] < min) min = arr[i];
+    }
+    int range = max - min + 1;
+    int[] counting = new int[range];
+    for (int element : arr) {
+        counting[element - min]++;
+    }
+    int preCounts = 0;
+    for (int i = 0; i < range; i++) {
+        preCounts += counting[i];
+        counting[i] = preCounts - counting[i];
+    }
+    int[] result = new int[arr.length];
+    for (int element : arr) {
+        result[counting[element - min]] = element;
+        counting[element - min]++;
+    }
+    for (int i = 0; i < arr.length; i++) {
+        arr[i] = result[i];
+    }
+}
+
+public static void countingSort5(int[] arr) {
+    if (arr == null || arr.length <= 1) return;
+    int max = arr[0];
+    int min = arr[0];
+    for (int i = 1; i < arr.length; i++) {
+        if (arr[i] > max) max = arr[i];
+        else if (arr[i] < min) min = arr[i];
+    }
+    int range = max - min + 1;
+    int[] counting = new int[range];
+    for (int element : arr) {
+        counting[element - min]++;
+    }
+    counting[0]--;
+    for (int i = 1; i < range; i++) {
+        counting[i] += counting[i - 1];
+    }
+    int[] result = new int[arr.length];
+    for (int i = arr.length - 1; i >= 0; i--) {
+        result[counting[arr[i] - min]] = arr[i];
+        counting[arr[i] - min]--;
+    }
+    for (int i = 0; i < arr.length; i++) {
+        arr[i] = result[i];
+    }
+}
+```
+
+## 8. 基数排序
+

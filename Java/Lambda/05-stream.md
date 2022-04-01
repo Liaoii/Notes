@@ -110,7 +110,302 @@ public void test04() {
 
 ### 4.3 并行处理与串行处理
 
+流的操作默认下都是由一个线程以串行的方式逐个对流中的元素进行处理，为了提高处理效率，Stream支持以并行的方式对流中的元素进行处理。
+
+使用Stream流编程对于并行操作非常简单，无需自己创建Thread多线程，只需调用parallel方法即可实现多线程环境。
+
+**(1) 串行处理**
+
+```java
+@Test
+public void test01() {
+    IntStream.range(1, 101).peek(Test01::print).count();
+}
+```
+
+**(2) 并行处理**
+
+parallel方法的位置不会影响其执行。
+
+```java
+@Test
+public void test02() {
+    IntStream.range(1, 101).parallel().peek(Test01::print).count();
+}
+```
+
+```java
+@Test
+public void test02() {
+    IntStream.range(1, 101).peek(Test01::print).parallel().count();
+}
+```
+
+**(3) 串并行混合处理**
+
+先并行后串行，最终以串行进行处理
+
+```java
+@Test
+public void test03() {
+    IntStream.range(1, 101)
+            .parallel() //并行处理
+            .peek(Test01::print)
+            .sequential() // 串行处理
+            .peek(Test01::printRed)
+            .count();
+}
+```
+
+先串行后并行，最终以并处进行处理
+
+```java
+@Test
+public void test03() {
+    IntStream.range(1, 101)
+            .sequential() // 串行处理
+            .peek(Test01::print)
+            .parallel() //并行处理
+            .peek(Test01::printRed)
+            .count();
+}
+```
+
+**(4) 线程数修改**
+
+串行处理时仅有一个main线程
+
+```java
+@Test
+public void test04() {
+    IntStream.range(1, 100).peek(Test01::printThread).count();
+}
+```
+
+并行处理的默认线程数量为当前操作系统的最大线程数量
+
+```java
+@Test
+public void test05() {
+    IntStream.range(1, 100)
+            .parallel()
+            .peek(Test01::printThread)
+            .count();
+}
+```
+
+**修改默认线程数**
+
+parallel多线程默认使用的线程池为ForkJoinPool.commonPool，其默认线程数可以修改
+
+```java
+@Test
+public void test06() {
+    //指定默认线程池中的数量为16，其中包含指定的15个与main线程
+    String key = "java.util.concurrent.ForkJoinPool.common.parallelism";
+    System.setProperty(key, "15");
+    IntStream.range(1, 100)
+            .parallel()
+            .peek(Test01::printThread)
+            .count();
+}
+```
+
+**使用自定义线程池**
+
+线程池中的线程在接到“多于线程池数量的”任务时会让任务进入阻塞队列进行排队，若当前系统中多个进程同时使用这个默认的线程池，则很大情况下会形成任务阻塞的状况。为了防止这种情况的发生，parallel可以指定使用自定义的线程池，以避免与其他进行争抢。
+
+```java
+@Test
+public void test07() {
+    //创建线程池
+    ForkJoinPool pool = new ForkJoinPool(4);
+    //定义并行任务
+    Callable<Long> task = () -> IntStream.range(1, 100)
+            .parallel()
+            .peek(Test01::printThread)
+            .count();
+    //向线程池提交并行任务
+    pool.submit(task);
+    //将pool阻塞，即会阻塞main线程的执行
+    synchronized (pool) {
+        try {
+            pool.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+wait()，notify()和notifyAll()方法必须在同步方法或同步代码块中被调用，且哪个对象调用这些方法，哪个对象就要充当同步锁。
+
 ### 4.4 Stream流的中间操作
+
+**(1) 中间操作分类**
+
+返回Stream接口类型的方法称为中间操作，根据“这些操作对当前数据池中的某一元素进行操作时是否需要了解对之前元素操作的结果”标准，可以将中间操作划分为无状态操作与有状态操作。
+
+**(2) 无状态操作**
+
+**map(Function<T,R> action)**
+
+这是一个无状态操作，其功能是将流中的元素映射为另一个值。由于其参数为Function，有一个输入和一个输出，所以map操作会对流中的元素产生影响。
+
+```java
+@Test
+public void test08() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .peek(System.out::print)
+            .map(word -> word.length())
+            .forEach(System.out::println);
+}
+```
+
+**mapToXxx()**
+
+其功能是将流中的元素映射为指定类型的元素，不同的流其可映射为的元素类型是不同的，即其所拥有的mapToXxx()方法是不同的。
+
+```java
+@Test
+public void test09() {
+    IntStream.range(1, 10).mapToObj(i -> "No." + i)
+            .forEach(System.out::println);
+}
+```
+
+```java
+@Test
+public void test10() {
+    Stream.of("111", "222", "333")
+            .mapToInt(Integer::valueOf)
+            .forEach(System.out::println);
+}
+```
+
+**flatMap(Function<T,Stream> action)**
+
+该方法的功能是将流中的元素映射为多个值，即偏平化map，其适用场景为流中原来的每个元素为集合，该方法用于将每个集合元素全部打散，然后添加到流中。
+
+由于其参数为Function，有输入和输出，所以flatMap()操作会对流中元素产生影响。需要注意的是，该Function的输出类型为Stream。
+
+```java
+@Test
+public void test11() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> word.chars().boxed())
+            .forEach(ch -> System.out.println((char) ch.intValue()));
+}
+```
+
+```java
+@Test
+public void test12() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .forEach(System.out::print);
+}
+```
+
+**filter(Predicate\<T\> action)**
+
+该方法用于过滤掉不适合指定条件的流中的元素，其参数为Predicate断言，用于设置过滤条件。
+
+```java
+@Test
+public void test13() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .filter(word -> word.length() > 4)
+            .forEach(System.out::println);
+}
+```
+
+**(3) 有状态操作**
+
+**distinct()**
+
+过滤掉流中的重复元素，无参数
+
+```java
+@Test
+public void test14() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .forEach(System.out::print);
+    System.out.println();
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .distinct()
+            .forEach(System.out::print);
+}
+```
+
+**sorted() 或 sorted(Comparator c)**
+
+对流中的元素进行排序，没有参数的sorted()默认是按照字典序排序的，即按照ASCII排序。可以使用带参方法指定排序规则。
+
+```java
+@Test
+public void test15() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .distinct()
+            .sorted()
+            .forEach(System.out::println);
+}
+```
+
+```java
+@Test
+public void test16() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .distinct()
+            .sorted(Comparator.reverseOrder())
+            .forEach(System.out::println);
+}
+```
+
+**skip(long)**
+
+从流中去除指定个数的元素
+
+```java
+@Test
+public void test16() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .distinct()
+            .sorted(Comparator.reverseOrder())
+            .skip(4)
+            .forEach(System.out::println);
+}
+```
+
+**(4) 有状态与无状态操作共存的执行流程**
+
+已有状态和无状态为分水岭，先执行完一个状态再执行另一个状态
+
+```java
+@Test
+public void test17() {
+    String words = "Hello chongqing I will go";
+    Stream.of(words.split(" "))
+            .flatMap(word -> Stream.of(word.split("")))
+            .distinct()
+            .peek(System.out::print)
+            .sorted()
+            .forEach(System.err::print);
+}
+```
 
 ### 4.5 Stream流的终止操作
 
