@@ -409,5 +409,440 @@ public void test17() {
 
 ### 4.5 Stream流的终止操作
 
+**(1) 终止操作分类**
+
+终止操作的结束意味着Stream流操作结束，根据操作是否需要遍历流中的所有元素，可以将终止操作划分为短路操作与非短路操作。
+
+**(2) 非短路操作**
+
+**forEachOrdered(Consumer\<T\> action)**
+
+遍历流中的元素，若流中的元素原本具有顺序，则按照原顺序排序。该方法与forEach方法的区别主要体现在并行操作中，forEach在并行操作下会打乱原顺序。
+
+```java
+@Test
+public void test01() {
+    String words = "I love chongqing and changsha";
+    // 对于流的并行操作，forEach()处理结果是无序的
+    Stream.of(words.split(" "))
+            .parallel()
+            .forEach(System.out::println);
+}
+```
+
+```java
+@Test
+    public void test03() {
+        String words = "I love chongqing and changsha";
+        // 对于流的并行操作，forEach()处理结果是无序的
+        Stream.of(words.split(" "))
+                .parallel()
+                .forEachOrdered(System.out::println);
+    }
+```
+
+**collect(Collector col)**
+
+将流中的最终数据收集到集合中，其参数为Collector收集器，通过Collectors的静态方法toList、toSet等可以获取到Collector对象。
+
+```java
+@Test
+public void test03() {
+    String words = "I love chongqing and changsha";
+    // 将流中的元素收集到一个集合中
+    List<String> list = Stream.of(words.split(" "))
+            .collect(Collectors.toList());
+    System.out.println(list);
+}
+```
+
+**toArray()**
+
+将流中的最终数据收集到数组中
+
+```java
+@Test
+public void test04() {
+    String words = "I love chongqing and changsha";
+    // 将流中的元素收集到一个数组中
+    Object[] array = Stream.of(words.split(" "))
+            .toArray();
+    System.out.println(Arrays.toString(array));
+}
+```
+
+**count()**
+
+统计流中的元素个数
+
+```java
+@Test
+public void test05() {
+    String words = "I love chongqing and changsha";
+    // 统计流中的元素个数
+    long count = Stream.of(words.split(" "))
+            .count();
+    System.out.println(count);
+}
+```
+
+**reduce(BinaryOperator\<T\> bo)**
+
+该方法的作用是将集合流最终转换为一个指定类型的数据，其参数为二元接口BinaryOperator，即两个输入一个输出，且类型相同。由两个输入最终变成一个输出，就达到了缩减的效果了。
+
+```java
+@Test
+public void test06() {
+    String words = "I love chongqing and changsha";
+    Optional<Integer> reduce = Stream.of(words.split(" "))
+            .map(word -> word.length())
+            .reduce((s1, s2) -> s1 + s2);
+    // Optional的get()方法在其封装的对象为空时会抛出异常
+    System.out.println(reduce.get());
+}
+```
+
+```java
+@Test
+public void test07() {
+    String words = "I love chongqing and changsha";
+    Optional<Integer> reduce = Stream.of(words.split(" "))
+            .map(word -> word.length())
+            .filter(len -> len > 200)
+            .reduce((s1, s2) -> s1 + s2);
+    // Optional的orElse()方法在正常情况下会返回正常的值
+    // 当其封装的对象为空时会返回参数指定的值
+    System.out.println(reduce.orElse(-1));
+}
+```
+
+reduce()方法还有一个包含两个参数的重载方法，其中第一个参数为默认值，即在流中元素为空时所使用的值，该方法可以避免NoSuchElementException异常的抛出。
+
+```java
+@Test
+public void test08() {
+    String words = "I love chongqing and changsha";
+    Integer length = Stream.of(words.split(" "))
+            .map(word -> word.length())
+            //.filter(len -> len > 200)
+            .reduce(0, (s1, s2) -> s1 + s2);
+    System.out.println(length);
+}
+```
+
+```java
+@Test
+public void test09() {
+    String words = "I love chongqing and changsha";
+    String res = Stream.of(words.split(" "))
+            //.filter(n -> n.length() > 200)
+            .reduce(null, (s1, s2) -> s1 + "," + s2);
+    System.out.println(res);
+}
+```
+
+**max(Comparator com)**
+
+```java
+@Test
+public void test10() {
+    String words = "I love chongqing and changsha";
+    // 从流中找出长度最大的那个单词
+    String max = Stream.of(words.split(" "))
+            .max((s1, s2) -> s1.length() - s2.length())
+            .orElse("当前流中没有元素");
+    System.out.println(max);
+}
+```
+
+```java
+@Test
+public void test11() {
+    String words = "I love chongqing and changsha";
+    // 从流中找出长度最小的那个单词
+    String max = Stream.of(words.split(" "))
+            .max((s1, s2) -> s2.length() - s1.length())
+            .orElse("当前流中没有元素");
+    System.out.println(max);
+}
+```
+
+**min(Comparator com)**
+
+```java
+@Test
+public void test12() {
+    String words = "I love chongqing and changsha";
+    // 从流中找出长度最小的那个单词
+    String max = Stream.of(words.split(" "))
+            .min((s1, s2) -> s1.length() - s2.length())
+            .orElse("当前流中没有元素");
+    System.out.println(max);
+}
+```
+
+```java
+@Test
+public void test13() {
+    String words = "I love chongqing and changsha";
+    // 从流中找出长度最小的那个单词
+    String max = Stream.of(words.split(" "))
+            .min((s1, s2) -> s2.length() - s1.length())
+            .orElse("当前流中没有元素");
+    System.out.println(max);
+}
+```
+
+**(3) 短路操作**
+
+**allMatch(Predicate p)**
+
+用于判断是否所有元素都符合指定的条件，只要有一个不符合，就会马上结束匹配并返回false，只有所有都匹配上了才会返回true。
+
+```java
+@Test
+public void test14() {
+    String words = "I love chongqing and changsha";
+    boolean allMatch = Stream.of(words.split(" "))
+            .allMatch(word -> word.length() > 3);
+    System.out.println(allMatch);
+}
+```
+
+**anyMatch(Predicate p)**
+
+用于判断是否存在符合条件的元素，只要找到一个符合的元素，马上结束匹配并返回true。
+
+```java
+@Test
+public void test15() {
+    String words = "I love chongqing and changsha";
+    boolean anyMatch = Stream.of(words.split(" "))
+            .anyMatch(word -> word.length() > 3);
+    System.out.println(anyMatch);
+}
+```
+
+**noneMatch(Predicate p)**
+
+用于判断是否全部不符合条件，只要找到一个符合的，马上返回false，只有所有都不符合才会返回ture。
+
+```java
+@Test
+public void test16() {
+    String words = "I love chongqing and changsha";
+    boolean noneMatch = Stream.of(words.split(" "))
+            .noneMatch(word -> word.length() > 3);
+    System.out.println(noneMatch);
+}
+```
+
+**findFirst() 与 findAny()**
+
+findFirst()与findAny()方法均会将从流中查找到的元素封装到Optional容器对象中。若没有找到，则Optional容器对象中的值会为空，Optional对象的isPresent()方法返回值会为false。
+
+```java
+@Test
+public void test17() {
+    String words = "I love chongqing and changsha";
+    String element = Stream.of(words.split(" "))
+            .findFirst()
+            .orElse("无任何元素");
+    System.out.println(element);
+}
+```
+
+```java
+@Test
+public void test18() {
+    String words = "I love chongqing and changsha";
+    String element = Stream.of(words.split(" "))
+            .findAny()
+            .orElse("无任何元素");
+    System.out.println(element);
+}
+```
+
 ### 4.6 收集器
 
+Stream的collect()方法可以将流中的最终数据收集到集合中，其为一个非短路终止操作。其参数为Collector收集器，一般都是通过调用Collectors的静态方法获取收集器对象的。不过收集器的功能远比将数据收集到集合要强大得多，还可以对收集的数据进行统计、分组等操作。根据不同的需求调用Collectors的不同静态方法，获取到不同的Collector收集器。
+
+**(1) 数据准备**
+
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Student {
+    private String name;
+    private String school;
+    private String gender;
+    private int age;
+    private double score;
+}
+```
+
+```java
+private List<Student> students;
+
+@Before
+public void before() {
+    Student student0 = new Student("Dolly", "重庆大学", "女", 20, 98);
+    Student student1 = new Student("Abbot", "四川大学", "男", 24, 94);
+    Student student2 = new Student("Hailey", "四川大学", "男", 25, 96);
+    Student student3 = new Student("Kali", "香港大学", "女", 23, 93.5);
+    Student student4 = new Student("Nana", "香港大学", "女", 22, 99);
+    Student student5 = new Student("Quentin", "重庆大学", "男", 25, 94.5);
+    Student student6 = new Student("Sal", "重庆大学", "男", 26, 97.5);
+    Student student7 = new Student("Tanya", "四川大学", "女", 19, 98);
+    Student student8 = new Student("Valentin", "香港大学", "男", 23, 91);
+    Student student9 = new Student("Yvonne", "重庆大学", "女", 22, 94);
+
+    students = Arrays.asList(student0, student1, student2, student3, student4, student5,
+            student6, student7, student8, student9);
+}
+```
+
+**(2) 流转集合**
+
+可以将流中的元素转换为List或Set集合。
+
+**toList()**
+
+将流中的元素收集为一个List。
+
+```java
+@Test
+public void test01() {
+    List<String> names = students.stream()
+            .map(Student::getName)
+            .collect(Collectors.toList());
+    System.out.println(names);
+}
+```
+
+**toSet()**
+
+```java
+@Test
+public void test02() {
+    Set<String> schools = students.stream()
+            .map(Student::getSchool)
+            .collect(Collectors.toSet());
+    System.out.println(schools);
+}
+```
+
+**toCollection(Supplier sup)**
+
+收集器默认使用的是无序的HashSet，若要指定使用有序的TreeSet，则可通过toCollection()方法指定。
+
+```java
+@Test
+public void test03() {
+    TreeSet<String> schools = students.stream().map(Student::getSchool)
+            .collect(Collectors.toCollection(TreeSet::new));
+    System.out.println(schools);
+}
+```
+
+**(3) 分组**
+
+**仅分组**
+
+分组是指，按照流中指定的元素的属性值进行分组。
+
+```java
+@Test
+public void test04() {
+    Map<String, List<Student>> schoolGroup = students.stream()
+            .collect(Collectors.groupingBy(Student::getSchool));
+    MapUtils.verbosePrint(System.out, "学校", schoolGroup);
+    System.out.println(schoolGroup.get("四川大学"));
+}
+```
+
+**分组后统计**
+
+统计是对元素个数的统计，所以无需指定属性用于统计。
+
+```java
+@Test
+public void test05() {
+    Map<String, Long> schoolCount = students.stream()
+            .collect(Collectors.groupingBy(Student::getSchool, Collectors.counting()));
+    System.out.println(schoolCount);
+    System.out.println(schoolCount.get("四川大学"));
+}
+```
+
+**(4) 布尔分块**
+
+**仅分块**
+
+布尔分块是按照指定断言的true与false结果进行分组，其只会划分为两组，且key只能是true或false。
+
+分组实现：
+
+```java
+@Test
+public void test06() {
+    Map<String, List<Student>> genderGroup = students.stream()
+            .collect(Collectors.groupingBy(Student::getGender));
+    MapUtils.verbosePrint(System.out, "性别", genderGroup);
+    System.out.println(genderGroup.get("男"));
+}
+```
+
+分块实现：
+
+```java
+@Test
+public void test07() {
+    Map<Boolean, List<Student>> genderGroup = students.stream()
+            .collect(Collectors.partitioningBy(s -> "男".equals(s.getGender())));
+    MapUtils.verbosePrint(System.out, "性别", genderGroup);
+    System.out.println(genderGroup.get(true));
+}
+```
+
+```java
+@Test
+public void test08() {
+    Map<Boolean, List<Student>> scoreGroup = students.stream()
+        .collect(Collectors.partitioningBy(s -> s.getScore() > 95));
+    MapUtils.verbosePrint(System.out, "划分成绩", scoreGroup);
+    System.out.println(scoreGroup.get(true));
+}
+```
+
+**分块后求平均值**
+
+分块后，对两块内容按照指定的属性求平均值。
+
+```java
+@Test
+public void test09() {
+    Map<Boolean, Double> scoreGroupAvg = students.stream()
+            .collect(Collectors.partitioningBy(s -> s.getScore() > 95,
+                     Collectors.averagingDouble(Student::getScore)));
+
+    System.out.println(scoreGroupAvg);
+    System.out.println(scoreGroupAvg.get(true));
+}
+```
+
+**(5) 获取汇总统计数据**
+
+汇总统计数据指的是对流中某一数据汇总后所统计出的最大值、最小值、平均值等数据。该方法只能适用于数值型数据统计。
+
+```java
+@Test
+public void test10() {
+    DoubleSummaryStatistics scoreSummary = students.stream()
+            .collect(Collectors.summarizingDouble(Student::getScore));
+    System.out.println(scoreSummary);
+    System.out.println("成绩个数：" + scoreSummary.getCount());
+    System.out.println("最小成绩：" + scoreSummary.getMin());
+}
+```

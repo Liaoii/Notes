@@ -1404,6 +1404,167 @@ class Solution {
 }
 ```
 
+#### [1710. 卡车上的最大单元数](https://leetcode-cn.com/problems/maximum-units-on-a-truck/)
+
+
+
+#### [1859. 将句子排序](https://leetcode-cn.com/problems/sorting-the-sentence/)
+
+```java
+class Solution {
+    public String sortSentence(String s) {
+        String[] strings = s.split(" ");
+        Arrays.sort(strings, Comparator.comparingInt(o -> o.charAt(o.length() - 1)));
+        StringBuilder sb = new StringBuilder();
+        sb.append(strings[0], 0, strings[0].length() - 1);
+        for (int i = 1; i < strings.length; i++) {
+            sb.append(" ").append(strings[i], 0, strings[i].length() - 1);
+        }
+        return sb.toString();
+    }
+}
+```
+
+#### [1913. 两个数对之间的最大乘积差](https://leetcode-cn.com/problems/maximum-product-difference-between-two-pairs/)
+
+```java
+class Solution {
+    public int maxProductDifference(int[] nums) {
+        Arrays.sort(nums);
+        int len = nums.length;
+        return nums[len - 1] * nums[len - 2] - nums[0] * nums[1];
+    }
+}
+```
+
+#### [1984. 学生分数的最小差值](https://leetcode-cn.com/problems/minimum-difference-between-highest-and-lowest-of-k-scores/)
+
+```java
+class Solution {
+    public int minimumDifference(int[] nums, int k) {
+        Arrays.sort(nums);
+        int ans = Integer.MAX_VALUE;
+        for (int i = 0; i < nums.length - k + 1; i++) {
+            ans = Math.min(nums[i + k - 1] - nums[i], ans);
+        }
+        return ans;
+    }
+}
+```
+
+#### [2037. 使每位学生都有座位的最少移动次数](https://leetcode-cn.com/problems/minimum-number-of-moves-to-seat-everyone/)
+
+```java
+class Solution {
+    public int minMovesToSeat(int[] seats, int[] students) {
+        Arrays.sort(seats);
+        Arrays.sort(students);
+        int ans = 0;
+        for (int i = 0; i < seats.length; i++) {
+            ans += Math.abs(seats[i] - students[i]);
+        }
+        return ans;
+    }
+}
+```
+
+#### [2089. 找出数组排序后的目标下标](https://leetcode-cn.com/problems/find-target-indices-after-sorting-array/)
+
+```java
+class Solution {
+    public List<Integer> targetIndices(int[] nums, int target) {
+        Arrays.sort(nums);
+        List<Integer> ans = new ArrayList<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == target) ans.add(i);
+        }
+        return ans;
+    }
+}
+```
+
+#### [2094. 找出 3 位偶数](https://leetcode-cn.com/problems/finding-3-digit-even-numbers/)
+
+```java
+class Solution {
+    public int[] findEvenNumbers(int[] digits) {
+        Arrays.sort(digits);
+        Set<Integer> set = new HashSet<>();
+        for (int i = 0; i < digits.length; i++) {
+            if (digits[i] % 2 == 1) continue;
+            if (i > 0 && digits[i] == digits[i - 1]) continue;
+            for (int j = 0; j < digits.length; j++) {
+                if (i == j) continue;
+                for (int k = 0; k < digits.length; k++) {
+                    if (k == i || k == j) continue;
+                    if (digits[k] == 0) continue;
+                    set.add(digits[i] + digits[j] * 10 + digits[k] * 100);
+                }
+            }
+        }
+        int[] ans = new int[set.size()];
+        int index = 0;
+        for (int num : set) {
+            ans[index++] = num;
+        }
+        Arrays.sort(ans);
+        return ans;
+    }
+}
+```
+
+代码简洁优化：
+
+```java
+class Solution {
+    public int[] findEvenNumbers(int[] digits) {
+        Set<Integer> set = new HashSet<>();
+        int len = digits.length;
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
+                for (int k = 0; k < len; k++) {
+                    if (i == j || j == k || i == k) continue;
+                    int num = digits[i] * 100 + digits[j] * 10 + digits[k];
+                    if (num >= 100 && num % 2 == 0) set.add(num);
+                }
+            }
+        }
+        int[] ans = set.stream().mapToInt(Integer::intValue).toArray();
+        Arrays.sort(ans);
+        return ans;
+    }
+}
+```
+
+对100到999之间的偶数逐个进行判断：
+
+```java
+class Solution {
+    public int[] findEvenNumbers(int[] digits) {
+        List<Integer> list = new ArrayList<>();
+        int[] frequency = new int[10];
+        for (int num : digits) frequency[num]++;
+        for (int i = 100; i < 1000; i += 2) {
+            int temp = i;
+            Map<Integer, Integer> map = new HashMap<>();
+            while (temp > 0) {
+                map.put(temp % 10, map.getOrDefault(temp % 10, 0) + 1);
+                temp /= 10;
+            }
+            boolean flag = true;
+            for (int num : map.keySet()) {
+                if (map.get(num) > frequency[num]) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) list.add(i);
+        }
+        return list.stream().mapToInt(Integer::intValue).toArray();
+    }
+}
+```
+
 #### [2099. 找到和最大的长度为 K 的子序列](https://leetcode-cn.com/problems/find-subsequence-of-length-k-with-the-largest-sum/)
 
 ```java
