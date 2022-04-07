@@ -1404,9 +1404,69 @@ class Solution {
 }
 ```
 
+#### [1636. 按照频率将数组升序排序](https://leetcode-cn.com/problems/sort-array-by-increasing-frequency/)
+
+```java
+class Solution {
+    public int[] frequencySort(int[] nums) {
+        int[] frequency = new int[201];
+        for (int num : nums) frequency[num + 100]++;
+        int[][] data = new int[201][];
+        for (int i = 0; i < frequency.length; i++) {
+            data[i] = new int[]{i - 100, frequency[i]};
+        }
+        Arrays.sort(data, (o1, o2) -> {
+            if (o1[1] == o2[1]) {
+                return o2[0] - o1[0];
+            } else {
+                return o1[1] - o2[1];
+            }
+        });
+        int[] ans = new int[nums.length];
+        int index = 0;
+        for (int[] datum : data) {
+            if (datum[1] == 0) continue;
+            for (int j = 0; j < datum[1]; j++) {
+                ans[index++] = datum[0];
+            }
+        }
+        return ans;
+    }
+}
+```
+
+#### [1619. 删除某些元素后的数组均值](https://leetcode-cn.com/problems/mean-of-array-after-removing-some-elements/)
+
+```java
+class Solution {
+    public double trimMean(int[] arr) {
+        Arrays.sort(arr);
+        int len = arr.length / 20;
+        double sum = 0;
+        for (int i = len; i < arr.length - len; i++) {
+            sum += arr[i];
+        }
+        return sum / (arr.length - len * 2);
+    }
+}
+```
+
 #### [1710. 卡车上的最大单元数](https://leetcode-cn.com/problems/maximum-units-on-a-truck/)
 
-
+```java
+class Solution {
+    public int maximumUnits(int[][] boxTypes, int truckSize) {
+        Arrays.sort(boxTypes, (o1, o2) -> o2[1] - o1[1]);
+        int ans = 0;
+        for (int i = 0; i < boxTypes.length && truckSize > 0; i++) {
+            int curSize = truckSize > boxTypes[i][0] ? boxTypes[i][0] : truckSize;
+            ans += boxTypes[i][1] * curSize;
+            truckSize -= curSize;
+        }
+        return ans;
+    }
+}
+```
 
 #### [1859. 将句子排序](https://leetcode-cn.com/problems/sorting-the-sentence/)
 
