@@ -1404,6 +1404,45 @@ class Solution {
 }
 ```
 
+#### [1502. 判断能否形成等差数列](https://leetcode-cn.com/problems/can-make-arithmetic-progression-from-sequence/)
+
+
+
+#### [1608. 特殊数组的特征值](https://leetcode-cn.com/problems/special-array-with-x-elements-greater-than-or-equal-x/)
+
+```java
+class Solution {
+    public int specialArray(int[] nums) {
+        Arrays.sort(nums);
+        int ans = -1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] >= nums.length - i && nums.length - i > nums[i - 1]) {
+                ans = nums.length - i;
+                break;
+            }
+        }
+        ans = nums[0] >= nums.length ? nums.length : ans;
+        return ans;
+    }
+}
+```
+
+#### [1619. 删除某些元素后的数组均值](https://leetcode-cn.com/problems/mean-of-array-after-removing-some-elements/)
+
+```java
+class Solution {
+    public double trimMean(int[] arr) {
+        Arrays.sort(arr);
+        int len = arr.length / 20;
+        double sum = 0;
+        for (int i = len; i < arr.length - len; i++) {
+            sum += arr[i];
+        }
+        return sum / (arr.length - len * 2);
+    }
+}
+```
+
 #### [1636. 按照频率将数组升序排序](https://leetcode-cn.com/problems/sort-array-by-increasing-frequency/)
 
 ```java
@@ -1431,22 +1470,6 @@ class Solution {
             }
         }
         return ans;
-    }
-}
-```
-
-#### [1619. 删除某些元素后的数组均值](https://leetcode-cn.com/problems/mean-of-array-after-removing-some-elements/)
-
-```java
-class Solution {
-    public double trimMean(int[] arr) {
-        Arrays.sort(arr);
-        int len = arr.length / 20;
-        double sum = 0;
-        for (int i = len; i < arr.length - len; i++) {
-            sum += arr[i];
-        }
-        return sum / (arr.length - len * 2);
     }
 }
 ```
