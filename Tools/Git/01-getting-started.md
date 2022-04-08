@@ -114,3 +114,22 @@ $ git config --global user.email xxx@xxx.com
 ```
 
 可以为单独的仓库设置特殊的用户信息。
+
+**查看Git的配置**
+
+```bash
+$ git config --list
+```
+
+**查看某一项配置**
+
+```bash
+$ git config user.name
+```
+
+**查看某一项配置的最后修改者**
+
+```bash
+$ git config --show-origin u
+```
+
