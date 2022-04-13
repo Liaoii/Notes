@@ -115,6 +115,18 @@ $ git config --global user.email xxx@xxx.com
 
 可以为单独的仓库设置特殊的用户信息。
 
+#### 3.3 配置文本编辑器
+
+当Git需要你输入信息时会调用文本编辑器。如果未配置，Git会使用操作系统默认的文本编辑器。
+
+**设置notepad++**
+
+```bash
+$ git config --global core.editor "'F:/Applications/NotePad++/notepad++.exe' -multiInst -notabbar -nosession -noPlugin"
+```
+
+#### 3.4 相关命令
+
 **查看Git的配置**
 
 ```bash
@@ -130,6 +142,6 @@ $ git config user.name
 **查看某一项配置的最后修改者**
 
 ```bash
-$ git config --show-origin u
+$ git config --show-origin user.name
 ```
 

@@ -1404,9 +1404,159 @@ class Solution {
 }
 ```
 
+#### [1385. 两个数组间的距离值](https://leetcode-cn.com/problems/find-the-distance-value-between-two-arrays/)
+
+```java
+class Solution {
+    public int findTheDistanceValue(int[] arr1, int[] arr2, int d) {
+        int ans = 0;
+        for (int num1 : arr1) {
+            boolean flag = true;
+            for (int num2 : arr2) {
+                if (Math.abs(num1 - num2) <= d) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) ans++;
+        }
+        return ans;
+    }
+}
+```
+
+#### [1403. 非递增顺序的最小子序列](https://leetcode-cn.com/problems/minimum-subsequence-in-non-increasing-order/)
+
+```java
+class Solution {
+    public List<Integer> minSubsequence(int[] nums) {
+        Arrays.sort(nums);
+        int sum = Arrays.stream(nums).sum();
+        int targetSum = 0;
+        List<Integer> ans = new ArrayList<>();
+        for (int i = nums.length - 1; i >= 0; i--) {
+            ans.add(nums[i]);
+            targetSum += nums[i];
+            sum -= nums[i];
+            if (targetSum > sum) return ans;
+        }
+        return ans;
+    }
+}
+```
+
+#### [1460. 通过翻转子数组使两个数组相等](https://leetcode-cn.com/problems/make-two-arrays-equal-by-reversing-sub-arrays/)
+
+对两个数组进行排序，然后比较两个数组中的元素是否一一对应：
+
+```java
+class Solution {
+    public boolean canBeEqual(int[] target, int[] arr) {
+        Arrays.sort(target);
+        Arrays.sort(arr);
+        for (int i = 0; i < target.length; i++) {
+            if (target[i] != arr[i]) return false;
+        }
+        return true;
+    }
+}
+```
+
+遍历两个数组，判断两个数组中各数字的个数是否相等：
+
+```java
+class Solution {
+    public boolean canBeEqual(int[] target, int[] arr) {
+        int[] frequency = new int[1001];
+        for (int i = 0; i < target.length; i++) {
+            frequency[target[i]]++;
+            frequency[arr[i]]--;
+        }
+        for (int count : frequency) {
+            if (count != 0) return false;
+        }
+        return true;
+    }
+}
+```
+
+计算两个数组各数字的平方和是否相等：
+
+```java
+class Solution {
+    public boolean canBeEqual(int[] target, int[] arr) {
+        int len = target.length;
+        int sum1 = 0, sum2 = 0;
+        for (int i = 0; i < len; i++) {
+            sum1 += target[i] * target[i];
+            sum2 += arr[i] * arr[i];
+        }
+        return sum1 == sum2;
+    }
+}
+```
+
+#### [1464. 数组中两元素的最大乘积](https://leetcode-cn.com/problems/maximum-product-of-two-elements-in-an-array/)
+
+先排序，再找到最大的两个数进行求值：
+
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        Arrays.sort(nums);
+        return (nums[nums.length - 1] - 1) * (nums[nums.length - 2] - 1);
+    }
+}
+```
+
+直接找出最大值和第二大的值，然后进行计算：
+
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        int max = 0, sec = 0;
+        for (int num : nums) {
+            if (num >= max) {
+                sec = max;
+                max = num;
+            } else if (num >= sec) {
+                sec = num;
+            }
+        }
+        return (max - 1) * (sec - 1);
+    }
+}
+```
+
+#### [1491. 去掉最低工资和最高工资后的工资平均值](https://leetcode-cn.com/problems/average-salary-excluding-the-minimum-and-maximum-salary/)
+
+```java
+class Solution {
+    public double average(int[] salary) {
+        Arrays.sort(salary);
+        long sum = 0;
+        for (int i = 1; i < salary.length - 1; i++) {
+            sum += salary[i];
+        }
+        return sum * 1.0 / (salary.length - 2);
+    }
+}
+```
+
 #### [1502. 判断能否形成等差数列](https://leetcode-cn.com/problems/can-make-arithmetic-progression-from-sequence/)
 
-
+```java
+class Solution {
+    public boolean canMakeArithmeticProgression(int[] arr) {
+        Arrays.sort(arr);
+        int diff = arr[1] - arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] - arr[i - 1] != diff) return false;
+        }
+        return true;
+    }
+}
+```
 
 #### [1608. 特殊数组的特征值](https://leetcode-cn.com/problems/special-array-with-x-elements-greater-than-or-equal-x/)
 
