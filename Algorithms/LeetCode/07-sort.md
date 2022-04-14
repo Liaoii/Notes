@@ -1404,6 +1404,72 @@ class Solution {
 }
 ```
 
+#### [1356. 根据数字二进制下 1 的数目排序](https://leetcode-cn.com/problems/sort-integers-by-the-number-of-1-bits/)
+
+
+
+#### [1365. 有多少小于当前数字的数字](https://leetcode-cn.com/problems/how-many-numbers-are-smaller-than-the-current-number/)
+
+使用双重循环进行求解：
+
+```java
+class Solution {
+    public int[] smallerNumbersThanCurrent(int[] nums) {
+        int[] ans = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            int count = 0;
+            for (int num : nums) {
+                if (num < nums[i]) count++;
+            }
+            ans[i] = count;
+        }
+        return ans;
+    }
+}
+```
+
+先对数组进行排序，然后进行求解：
+
+```java
+class Solution {
+    public int[] smallerNumbersThanCurrent(int[] nums) {
+        int[] copy = Arrays.copyOf(nums, nums.length);
+        Arrays.sort(copy);
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < copy.length; i++) {
+            if (map.containsKey(copy[i])) continue;
+            map.put(copy[i], i);
+        }
+        int[] ans = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            ans[i] = map.get(nums[i]);
+        }
+        return ans;
+    }
+}
+```
+
+利用计数排序思想进行求解：
+
+```java
+class Solution {
+    public int[] smallerNumbersThanCurrent(int[] nums) {
+        int[] frequency = new int[101];
+        for (int num : nums) {
+            frequency[num]++;
+        }
+        for (int i = 1; i < frequency.length; i++) {
+            frequency[i] += frequency[i - 1];
+        }
+        int[] ans = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            ans[i] = nums[i] == 0 ? 0 : frequency[nums[i] - 1];
+        }
+        return ans;
+    }
+}
+```
+
 #### [1385. 两个数组间的距离值](https://leetcode-cn.com/problems/find-the-distance-value-between-two-arrays/)
 
 ```java
