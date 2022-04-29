@@ -1404,9 +1404,37 @@ class Solution {
 }
 ```
 
+#### [1346. 检查整数及其两倍数是否存在](https://leetcode-cn.com/problems/check-if-n-and-its-double-exist/)
+
+
+
 #### [1356. 根据数字二进制下 1 的数目排序](https://leetcode-cn.com/problems/sort-integers-by-the-number-of-1-bits/)
 
-
+```java
+class Solution {
+    public int[] sortByBits(int[] arr) {
+        int[][] data = new int[arr.length][2];
+        for (int i = 0; i < arr.length; i++) {
+            String bs = Integer.toBinaryString(arr[i]);
+            int count = 0;
+            for (int j = 0; j < bs.length(); j++) {
+                if (bs.charAt(j) == '1') count++;
+            }
+            data[i] = new int[]{arr[i], count};
+        }
+        Arrays.sort(data, ((o1, o2) -> {
+            if (o1[1] == o2[1]) {
+                return o1[0] - o2[0];
+            } else {
+                return o1[1] - o2[1];
+            }
+        }));
+        int[] ans = new int[arr.length];
+        for (int i = 0; i < data.length; i++) ans[i] = data[i][0];
+        return ans;
+    }
+}
+```
 
 #### [1365. 有多少小于当前数字的数字](https://leetcode-cn.com/problems/how-many-numbers-are-smaller-than-the-current-number/)
 
