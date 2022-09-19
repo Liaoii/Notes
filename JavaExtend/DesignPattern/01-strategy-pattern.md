@@ -4,7 +4,15 @@
 
 策略模式定义了算法族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户
 
-### 2. 设计原则
+### 2. 遇到的问题
+
+使用继承时如果子类的行为有所不同，需要覆盖相关方法。
+
+使用继承时可能存在子类不具有父类某些行为的情况，此时也需要进行覆盖。
+
+当实现接口时，由于接口没有具体实现，所以无法做到代码的复用。
+
+### 3. 设计原则
 
 ① 找出应用中可能需要变化之处，把它们独立出来，不要和那些不需要变化的代码混在一起。
 
@@ -12,22 +20,30 @@
 
 ③ 多用组合，少用继承
 
-### 3. 结构
+### 4. 类图
 
 <left><img src="images\01-strategy-pattern.png"/></left>
 
-### 4. 代码
+### 5. 代码
 
 **Duck**
 
 ```java
 public abstract class Duck {
-    protected FlyBehavior flyBehavior;
-    protected QuackBehavior quackBehavior;
+    FlyBehavior flyBehavior;
+    QuackBehavior quackBehavior;
 
     public Duck() {}
 
-    public abstract void display();
+    public void setFlyBehavior(FlyBehavior fb) {
+        flyBehavior = fb;
+    }
+
+    public void setQuackBehavior(QuackBehavior qb) {
+        quackBehavior = qb;
+    }
+
+    abstract void display();
 
     public void performFly() {
         flyBehavior.fly();
@@ -39,14 +55,6 @@ public abstract class Duck {
 
     public void swim() {
         System.out.println("All ducks float, even decoys!");
-    }
-
-    public void setFlyBehavior(FlyBehavior flyBehavior) {
-        this.flyBehavior = flyBehavior;
-    }
-
-    public void setQuackBehavior(QuackBehavior quackBehavior) {
-        this.quackBehavior = quackBehavior;
     }
 }
 ```
@@ -62,8 +70,7 @@ public interface FlyBehavior {
 **FlyNoWay**
 
 ```java
-public class FlyNoWay implements FlyBehavior{
-    @Override
+public class FlyNoWay implements FlyBehavior {
     public void fly() {
         System.out.println("I can't fly");
     }
@@ -72,23 +79,21 @@ public class FlyNoWay implements FlyBehavior{
 
 **FlyRocketPowered**
 
-```
-public class FlyRocketPowered implements FlyBehavior{
-    @Override
-    public void fly() {
-        System.out.println("I'm flying with a rocket");
-    }
+```java
+public class FlyRocketPowered implements FlyBehavior {
+	public void fly() {
+		System.out.println("I'm flying with a rocket");
+	}
 }
 ```
 
 **FlyWithWings**
 
-```
-public class FlyWithWings implements FlyBehavior{
-    @Override
-    public void fly() {
-        System.out.println("I'm flying!");
-    }
+```java
+public class FlyWithWings implements FlyBehavior {
+	public void fly() {
+		System.out.println("I'm flying!!");
+	}
 }
 ```
 
@@ -102,23 +107,41 @@ public interface QuackBehavior {
 
 **Quack**
 
-```
-public class Quack implements QuackBehavior{
-    @Override
-    public void quack() {
-        System.out.println("Quack");
-    }
+```java
+public class Quack implements QuackBehavior {
+	public void quack() {
+		System.out.println("Quack");
+	}
 }
 ```
 
 **Squeak**
 
+```java
+public class Squeak implements QuackBehavior {
+	public void quack() {
+		System.out.println("Squeak");
+	}
+}
 ```
-public class Squeak implements QuackBehavior{
-    @Override
-    public void quack() {
-        System.out.println("Squeak");
-    }
+
+**FakeQuack**
+
+```java
+public class FakeQuack implements QuackBehavior {
+   public void quack() {
+      System.out.println("Qwak");
+   }
+}
+```
+
+**MuteQuack**
+
+```java
+public class MuteQuack implements QuackBehavior {
+   public void quack() {
+      System.out.println("<< Silence >>");
+   }
 }
 ```
 
@@ -132,10 +155,47 @@ public class MallardDuck extends Duck {
         flyBehavior = new FlyWithWings();
     }
 
-    @Override
     public void display() {
         System.out.println("I'm a real Mallard duck");
     }
+}
+```
+
+**RedHeadDuck**
+
+```java
+public class RedHeadDuck extends Duck {
+ 
+   public RedHeadDuck() {
+      flyBehavior = new FlyWithWings();
+      quackBehavior = new Quack();
+   }
+ 
+   public void display() {
+      System.out.println("I'm a real Red Headed duck");
+   }
+}
+```
+
+**RubberDuck**
+
+```java
+public class RubberDuck extends Duck {
+ 
+   public RubberDuck() {
+      flyBehavior = new FlyNoWay();
+      //quackBehavior = new Squeak();
+      quackBehavior = () -> System.out.println("Squeak");
+   }
+   
+   public RubberDuck(FlyBehavior flyBehavior, QuackBehavior quackBehavior) {
+      this.flyBehavior = flyBehavior;
+      this.quackBehavior = quackBehavior; 
+   }
+ 
+   public void display() {
+      System.out.println("I'm a rubber duckie");
+   }
 }
 ```
 
@@ -153,5 +213,64 @@ public class ModelDuck extends Duck {
     public void display() {
         System.out.println("I'm a model duck");
     }
+}
+```
+
+**DecoyDuck**
+
+```java
+public class DecoyDuck extends Duck {
+   public DecoyDuck() {
+      setFlyBehavior(new FlyNoWay());
+      setQuackBehavior(new MuteQuack());
+   }
+   public void display() {
+      System.out.println("I'm a duck Decoy");
+   }
+}
+```
+
+**MiniDuckSimulator**
+
+```java
+public class MiniDuckSimulator {
+
+    public static void main(String[] args) {
+
+        MallardDuck mallard = new MallardDuck();
+        FlyBehavior cantFly = () -> System.out.println("I can't fly");
+        QuackBehavior squeak = () -> System.out.println("Squeak");
+        RubberDuck rubberDuckie = new RubberDuck(cantFly, squeak);
+        DecoyDuck decoy = new DecoyDuck();
+
+        Duck model = new ModelDuck();
+
+        mallard.performQuack();
+        rubberDuckie.performQuack();
+        decoy.performQuack();
+
+        model.performFly();
+        model.setFlyBehavior(new FlyRocketPowered());
+        model.performFly();
+    }
+}
+```
+
+**MiniDuckSimulator**
+
+```java
+public class MiniDuckSimulator {
+ 
+   public static void main(String[] args) {
+ 
+      Duck mallard = new MallardDuck();
+      mallard.performQuack();
+      mallard.performFly();
+   
+      Duck model = new ModelDuck();
+      model.performFly();
+      model.setFlyBehavior(new FlyRocketPowered());
+      model.performFly();
+   }
 }
 ```
